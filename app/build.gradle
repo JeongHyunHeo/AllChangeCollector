@@ -26,6 +26,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit
     implementation group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '2.2.0.201212191850-r'
 
+    //gumtree lib
     implementation 'com.github.gumtreediff:core:3.0.0'
 }
 
@@ -38,3 +39,12 @@ tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
+
+configurations{
+    jar.archiveName = 'AllChangeCollector.jar'
+}
+
+// task execute(type:JavaExec){
+//     main = project.hasProperty("mainClass") ? getProperty("mainClass") : "NULL"
+//     classpath = sourceSets.main.runtimeClasspath
+// }

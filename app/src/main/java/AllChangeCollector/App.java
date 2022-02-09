@@ -6,68 +6,137 @@ package AllChangeCollector;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class App {
-    public static void main(String[] args) {
+    static ArrayList<String> repo_url = new ArrayList<String>();
+    static ArrayList<String> repo_name = new ArrayList<String>();
+
+    public static void main(String[] args) throws IOException {
         Scanner kb = new Scanner(System.in);
+
+        /*
+        //parsing cli
+        if(args.length < 1)
+        {
+            for (String str : args) {
+                if(str == "-h") // help command 
+                {
+                    System.out.println("====== HELP ======");
+                    System.out.println("Default option : shell) ");
+                }
         
-        System.out.print("Enter GIT repository URL: ");
-        String url = kb.nextLine();
-        System.out.print("Enter Desired directory name: ");
-        String dir = kb.nextLine();
-        System.out.println("\n\n");
+            }
+        }
+        else {
+            System.out.println("Please enter the filename or with cli command");
+        }
+        */
+
+        System.out.print("Enter file name: ");
+        String filename = kb.nextLine();
+        System.out.println();
+
+        try {
+            extract(filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         
         // Cloning 
-        clone_repo(url);
+        clone_repo(repo_url);
 
-        crawl_commit_id(dir);
+        crawl_commit_id(repo_name);
 
         getChange();
 
         kb.close();
     }
+    
+    public static void extract(String file_name) throws FileNotFoundException, IOException
+    {
+        System.out.println("======= Extracting File Data =======");
+        File file = new File(file_name);
+        int count = 0;
 
-    public static void clone_repo(String repo_url)
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                count++;
+                String[] result = line.split(" ");
+                repo_url.add(result[0]);
+                repo_name.add(result[1]);
+            }
+        }
+
+        System.out.println("Counted repo: " + count + "\n\n");
+    }
+
+    public static void clone_repo(ArrayList<String> repo_url) throws IOException
     {
         System.out.println("======    Starting Task : Cloning Repository    ========");
-        Process process;
-        try {
-            System.out.println("Start cloning " + repo_url + ".............");
-            process = Runtime.getRuntime().exec("git clone " + repo_url);
-            printResult(process);
-        } catch (IOException e) {
-            System.out.println("Failed Cloning");
-            e.printStackTrace();
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        
+        File directory = new File(System.getProperty("user.dir") + "/data");
+        
+        if (!directory.exists())
+        {
+            directory.mkdir();
+        }
+        
+        
+        processBuilder.directory(directory);
+        
+        
+        for (String curr_url : repo_url)
+        {
+            processBuilder.command("git", "clone", curr_url);
+            try {
+                System.out.println("Start cloning " + curr_url + ".............");
+                Process process = processBuilder.start();
+                //process = Runtime.getRuntime().exec("git clone " + curr_url);
+                printResult(process);
+            } catch (IOException e) {
+                System.out.println("Failed Cloning");
+                e.printStackTrace();
+            }
         }
         
         System.out.println("Cloning Completed\n\n");
     }
 
-    public static void crawl_commit_id(String dir)
+    public static void crawl_commit_id(ArrayList<String> repo_name)
     {
         System.out.println("===== Starting Task : Commit ID Collecting ======");
-        
+
         ProcessBuilder processbuilder = new ProcessBuilder();
         processbuilder.command("git", "log", "--pretty=format:\"%H\"");
-        String work_dir = System.getProperty("user.dir") + "/" + dir;
-        System.out.println("Current working directory is " + work_dir); // DEBUG
-        processbuilder.directory(new File(work_dir));
 
         // get history commit ids using 'git log'
-        try {
-            System.out.println("git log executing");
-            Process process = processbuilder.start();
-            saveResult(process, work_dir);
-        } catch (IOException e) {
-            e.printStackTrace();
+        System.out.println("git log executing");
+        for (String curr_repo : repo_name) {
+            String work_dir = System.getProperty("user.dir") + "/data/" + curr_repo;
+            processbuilder.directory(new File(work_dir));
+            try {
+                Process process = processbuilder.start();
+                saveResult(process, work_dir);
+                System.out.println("commit ID for " + curr_repo + " have been extracted");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         System.out.println("All commit ID extracted\n\n");
     }
+    
 
+    //Function that extracting all changes of the repo
     public static void getChange()
     {
         
