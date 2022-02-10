@@ -67,7 +67,7 @@ goto fail
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\AllChangeCollector.jar;%APP_HOME%\lib\core-3.0.0.jar;%APP_HOME%\lib\simmetrics-core-3.2.3.jar;%APP_HOME%\lib\guava-30.1.1-jre.jar;%APP_HOME%\lib\org.eclipse.jgit-2.2.0.201212191850-r.jar;%APP_HOME%\lib\failureaccess-1.0.1.jar;%APP_HOME%\lib\listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar;%APP_HOME%\lib\jsr305-3.0.2.jar;%APP_HOME%\lib\checker-qual-3.8.0.jar;%APP_HOME%\lib\error_prone_annotations-2.5.1.jar;%APP_HOME%\lib\j2objc-annotations-1.3.jar;%APP_HOME%\lib\jsch-0.1.44-1.jar;%APP_HOME%\lib\classindex-3.10.jar;%APP_HOME%\lib\fastutil-8.3.1.jar;%APP_HOME%\lib\gson-2.8.2.jar;%APP_HOME%\lib\jgrapht-core-1.5.1.jar;%APP_HOME%\lib\commons-codec-1.10.jar;%APP_HOME%\lib\jheaps-0.13.jar
+set CLASSPATH=%APP_HOME%\lib\AllChangeCollector.jar;%APP_HOME%\lib\core-3.0.0.jar;%APP_HOME%\lib\simmetrics-core-3.2.3.jar;%APP_HOME%\lib\guava-30.1.1-jre.jar;%APP_HOME%\lib\org.eclipse.jgit-2.2.0.201212191850-r.jar;%APP_HOME%\lib\commons-cli-1.3.jar;%APP_HOME%\lib\failureaccess-1.0.1.jar;%APP_HOME%\lib\listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar;%APP_HOME%\lib\jsr305-3.0.2.jar;%APP_HOME%\lib\checker-qual-3.8.0.jar;%APP_HOME%\lib\error_prone_annotations-2.5.1.jar;%APP_HOME%\lib\j2objc-annotations-1.3.jar;%APP_HOME%\lib\jsch-0.1.44-1.jar;%APP_HOME%\lib\classindex-3.10.jar;%APP_HOME%\lib\fastutil-8.3.1.jar;%APP_HOME%\lib\gson-2.8.2.jar;%APP_HOME%\lib\jgrapht-core-1.5.1.jar;%APP_HOME%\lib\commons-codec-1.10.jar;%APP_HOME%\lib\jheaps-0.13.jar
 
 
 @rem Execute app

@@ -1,3 +1,6 @@
-https://github.com/S0rrow/APR.git APR
-https://github.com/AmbalviUsman/Billing-System.git Billing-System
-https://github.com/HouariZegai/Calculator.git Calculator
+https://github.com/spring-projects/spring-boot.git spring-boot
+https://github.com/TeamNewPipe/NewPipe.git NewPipe
+https://github.com/cabaletta/baritone.git baritone
+https://github.com/OpenAPITools/openapi-generator.git openapi-generator
+https://github.com/google/guice.git guice
+https://github.com/TheAlgorithms/Java.git Java

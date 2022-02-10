@@ -10,6 +10,7 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
 }
+apply plugin : "java"
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -28,6 +29,9 @@ dependencies {
 
     //gumtree lib
     implementation 'com.github.gumtreediff:core:3.0.0'
+
+    // https://mvnrepository.com/artifact/commons-cli/commons-cli
+    implementation group: 'commons-cli', name: 'commons-cli', version: '1.3'
 }
 
 application {
@@ -44,7 +48,9 @@ configurations{
     jar.archiveName = 'AllChangeCollector.jar'
 }
 
-// task execute(type:JavaExec){
-//     main = project.hasProperty("mainClass") ? getProperty("mainClass") : "NULL"
-//     classpath = sourceSets.main.runtimeClasspath
-// }
+task appRun(type: JavaExec)
+{
+    description 'exec App Class.'
+    main 'App'
+    classpath sourceSets.main.runtimeClasspath
+}
