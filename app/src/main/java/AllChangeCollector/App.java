@@ -7,56 +7,36 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.util.ArrayList;
+
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 public class App {
     static ArrayList<String> repo_url = new ArrayList<String>();
     static ArrayList<String> repo_name = new ArrayList<String>();
-    static boolean debug = false, append = false, autoFlush = true;
+    static boolean output, help;
+    static String input_path = null;
 
     public static void main(String[] args) throws IOException, ParseException {
         //cli options
-        Options options = new Options();
+        Options options = createOptions();
 
-        options.addOption("h", false, "help");
-        options.addOption("d", false, "directory");
-        options.addOption("p", false, "customizing input file path");
-
-        //parsing stage
-        CommandLineParser parser = new DefaultParser();
-        CommandLine cmd = parser.parse(options, args);
-
-        //cli interrogation stage
-        if (cmd.hasOption("h") || cmd.hasOption("help"))
-        {
-            print_help();
-            System.exit(0);
+        if(parseOptions(options,args)){
+            if(help)
+                print_help();
+            
         }
-        if (cmd.hasOption("d") || cmd.hasOption("debug"))
-        {
-            debug = true;
-        }
-
-
-        if (debug == true)
-        {
-            PrintStream debug_file = new PrintStream(new FileOutputStream("log.txt", append), autoFlush);
-            System.setOut(debug_file);
-        }
-
-        String filename = args[1];
+        String filename = args[0];
 
         try {
             extract(filename);
@@ -185,8 +165,40 @@ public class App {
         System.out.println("List of Commands");
         System.out.println("------------------");
         System.out.println("-h, -help : listing all the commands with the description of functionality of commands");
-        System.out.println(
-                "-d, -debug : saves all the progresses into text file, textfile will be saved as 'log.txt' as default");
-        System.out.println("-p, -path : ");
+        System.out.println("-i, -input : giving the input file custompath, default path is current working directory");
+        System.out.println("-o, -output : makes one txt file that contains all the changes in cloned repositories");
+    }
+
+    private static Options createOptions(){
+        Options options = new Options();
+
+        options.addOption(Option.builder("i").longOpt("input").desc("give input file custom path").hasArg().argName("input_path").required().build());
+        options.addOption(Option.builder("o").longOpt("output").desc("makes the output file containing all the changes of all cloned repository").build());
+        options.addOption(Option.builder("h").longOpt("help").desc("Help").build());
+
+        return options;
+    }
+
+    private static boolean parseOptions(Options options, String[] args){
+        CommandLineParser parser = new DefaultParser();
+
+        try{
+            CommandLine cmd = parser.parse(options, args);
+            try{
+                if(cmd.hasOption("o"))
+                    output = true;
+                if(cmd.hasOption("h"))
+                    help = true;
+
+                input_path = cmd.getOptionValue("i");
+            } catch (Exception e){
+                System.out.println(e.getMessage());
+                return false;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }
