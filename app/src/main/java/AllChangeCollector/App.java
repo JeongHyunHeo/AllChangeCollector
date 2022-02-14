@@ -18,13 +18,15 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import org.eclipse.jgit.api.errors.GitAPIException;
+
 public class App {
     static ArrayList<String> repo_url = new ArrayList<String>();
     static ArrayList<String> repo_name = new ArrayList<String>();
     static boolean output, help;
     static String input_path = null;
 
-    public static void main(String[] args) throws IOException, ParseException {
+    public static void main(String[] args) throws IOException, ParseException, GitAPIException {
         //cli options
         Options options = createOptions();
 
@@ -52,8 +54,9 @@ public class App {
 
         
         // Cloning 
-        GitFunctions.clone_repo(repo_url);
-        GitFunctions.crawl_commit_id(repo_name);
+        GitFunctions.clone_repo_jgit(repo_url);
+        
+        // GitFunctions.crawl_commit_id(repo_name);
     }
     
     public static void extract(String file_name) throws FileNotFoundException, IOException

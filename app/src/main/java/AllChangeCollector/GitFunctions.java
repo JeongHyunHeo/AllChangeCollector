@@ -8,8 +8,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import org.apache.commons.io.FileUtils;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ProgressMonitor;
+import org.eclipse.jgit.lib.TextProgressMonitor;
+
+
 public class GitFunctions {
-    public static void clone_repo(ArrayList<String> repo_url) throws IOException
+    public static void clone_repo(ArrayList<String> repo_url) throws IOException, GitAPIException
     {
         System.out.println("======    Starting Task : Cloning Repository    ========");
         ProcessBuilder processBuilder = new ProcessBuilder();
@@ -27,6 +34,8 @@ public class GitFunctions {
         
         for (String curr_url : repo_url)
         {
+            System.out.println("Clonging from " + curr_url);
+            /*
             processBuilder.command("git", "clone", curr_url);
             try {
                 System.out.println("Start cloning " + curr_url + ".............");
@@ -37,9 +46,29 @@ public class GitFunctions {
                 System.out.println("Failed Cloning");
                 e.printStackTrace();
             }
+            */
         }
         
         System.out.println("Cloning Completed\n\n");
+    }
+
+    // Cloning Git repo using JGit
+    public static void clone_repo_jgit(ArrayList<String> repo_url, ArrayList<String> repo_name) throws IOException, GitAPIException{
+
+        File directory = new File(System.getProperty("user.dir") + "/data");
+
+        for(String curr : repo_url)
+        {
+    
+            System.out.println("Cloning from " + curr);
+            try(Git result = Git.cloneRepository()
+            .setURI(curr)
+            .setDirectory(directory)
+            .setProgressMonitor(new TextProgressMonitor()) // SimpleProgressMonitor -> TextProgressMonitor
+            .call()){
+                System.out.println("Having repository: " + result.getRepository().getDirectory());
+            }
+        }
     }
 
     public static void crawl_commit_id(ArrayList<String> repo_name)
