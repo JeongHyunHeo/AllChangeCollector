@@ -53,17 +53,27 @@ public class GitFunctions {
     }
 
     // Cloning Git repo using JGit
-    public static void clone_repo_jgit(ArrayList<String> repo_url, ArrayList<String> repo_name) throws IOException, GitAPIException{
-
-        File directory = new File(System.getProperty("user.dir") + "/data");
+    public static void clone_repo_jgit(ArrayList<String> repo_url) throws IOException, GitAPIException{
 
         for(String curr : repo_url)
         {
-    
+            // make directory
+            int start = curr.lastIndexOf("/");
+            int end = curr.lastIndexOf(".");
+            String name = curr.substring(start, end);
+            
+            File curr_directory = new File(System.getProperty("user.dir") + "/data" + name);
+
+            if (!curr_directory.exists())
+            {
+                curr_directory.mkdir();
+            }
+
+            // cloning repository
             System.out.println("Cloning from " + curr);
             try(Git result = Git.cloneRepository()
             .setURI(curr)
-            .setDirectory(directory)
+            .setDirectory(curr_directory)
             .setProgressMonitor(new TextProgressMonitor()) // SimpleProgressMonitor -> TextProgressMonitor
             .call()){
                 System.out.println("Having repository: " + result.getRepository().getDirectory());
