@@ -8,14 +8,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.ProgressMonitor;
 import org.eclipse.jgit.lib.TextProgressMonitor;
 
 
 public class GitFunctions {
+    // running git clone using Runtime
     public static void clone_repo(ArrayList<String> repo_url) throws IOException, GitAPIException
     {
         System.out.println("======    Starting Task : Cloning Repository    ========");
@@ -34,7 +33,7 @@ public class GitFunctions {
         
         for (String curr_url : repo_url)
         {
-            System.out.println("Clonging from " + curr_url);
+            System.out.println("Cloning from " + curr_url);
             /*
             processBuilder.command("git", "clone", curr_url);
             try {
@@ -53,7 +52,7 @@ public class GitFunctions {
     }
 
     // Cloning Git repo using JGit
-    public static void clone_repo_jgit(ArrayList<String> repo_url) throws IOException, GitAPIException{
+    public static void clone_repo_jgit(ArrayList<String> repo_url, ArrayList<String> repo_list) throws IOException, GitAPIException{
 
         for(String curr : repo_url)
         {
@@ -77,6 +76,8 @@ public class GitFunctions {
             .setProgressMonitor(new TextProgressMonitor()) // SimpleProgressMonitor -> TextProgressMonitor
             .call()){
                 System.out.println("Having repository: " + result.getRepository().getDirectory());
+                String output = result.getRepository().getDirectory().toString();
+                repo_list.add(output);
             }
         }
     }
@@ -103,13 +104,18 @@ public class GitFunctions {
         }
         System.out.println("All commit ID extracted\n\n");
     }
-    
 
-    //Function that extracting all changes of the repo
-    public static void getChange()
+    // 
+    public static void crawl_commit_id_jgit(ArrayList<String> repo_name)
     {
+        System.out.println("======          Starting Task : Commit ID Collecting            ======");
         
+        for(String curr_repo : repo_name)
+        {
+            String work_dir = System.getProperty("user.dir") + "/data/" + curr_repo;
+        }
     }
+
 
     // Question: it cannot print the execution of the git cloning process, why?
     public static void printResult(Process process) throws IOException

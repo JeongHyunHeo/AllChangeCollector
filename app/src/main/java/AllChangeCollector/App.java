@@ -23,6 +23,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 public class App {
     static ArrayList<String> repo_url = new ArrayList<String>();
     static ArrayList<String> repo_name = new ArrayList<String>();
+    static ArrayList<String> repo_list = new ArrayList<String>();
     static boolean output, help;
     static String input_path = null;
 
@@ -54,7 +55,8 @@ public class App {
 
         
         // Cloning 
-        GitFunctions.clone_repo_jgit(repo_url);
+        GitFunctions.clone_repo_jgit(repo_url, repo_list);
+        Gumtree.all_commit(repo_list, repo_name);
         
         // GitFunctions.crawl_commit_id(repo_name);
     }
