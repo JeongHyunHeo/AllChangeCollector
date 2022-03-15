@@ -6,11 +6,18 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.TextProgressMonitor;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 
 
 public class GitFunctions {
@@ -105,15 +112,100 @@ public class GitFunctions {
         System.out.println("All commit ID extracted\n\n");
     }
 
-    // 
+    // INCOMPLETE(reason: not needed)
     public static void crawl_commit_id_jgit(ArrayList<String> repo_name)
     {
         System.out.println("======          Starting Task : Commit ID Collecting            ======");
-        
-        for(String curr_repo : repo_name)
-        {
+
+        for (String curr_repo : repo_name) {
             String work_dir = System.getProperty("user.dir") + "/data/" + curr_repo;
         }
+    }
+    
+    /*
+     * instead, crawl_commit_id() in GitFunction.java was used
+     * because both brings same result.
+     */
+    public static void all_commit(ArrayList<String> repo_list, ArrayList<String> repo_name)
+            throws IOException, GitAPIException {
+        System.out.println("===== Starting Task : Commit ID Collecting(all commit) ======");
+        for (String name : repo_list) {
+            // String work_dir = System.getProperty("user.dir") + "/data/" +
+            // repo_name.get(i);
+            // File file = new File(work_dir, "commitID.txt");
+
+            // System.out.println("current working repo: " + name);
+
+            // BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            // BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+            // String line = "";
+            try (Repository repo = new FileRepository(name)) {
+                // get a list of all known heads, tags, remotes, ...
+                Collection<Ref> allRefs = repo.getAllRefs().values();
+
+                /*
+                 * String working_dir = System.getProperty("user.dir") + "/data/" +
+                 * File file = new File(working_dir, "commitID.txt");
+                 * BoundedReader reader = new BufferedReader(new
+                 * InputStreamReader(process.getInputStream()));
+                 * BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+                 * String line = "";
+                 * while ((line = reader.readLine()) != null) {
+                 * line = line.substring(1, line.length() - 1);
+                 * writer.write(line + "\n");
+                 * }
+                 * writer.close();
+                 * reader.close();
+                 */
+
+                // a RevWalk allows to walk over commits based on some filtering that is defined
+                try (RevWalk revWalk = new RevWalk(repo)) {
+                    for (Ref ref : allRefs) {
+                        revWalk.markStart(revWalk.parseCommit(ref.getObjectId()));
+                    }
+                    // System.out.println("Walking all commits starting with " + allRefs.size() + "
+                    // refs: " + allRefs);
+                    // int count = 0;
+                    for (RevCommit commit : revWalk) {
+                        System.setOut(System.out);
+                        System.out.println(commit.getName()); // sha
+                        Gumtree.get_changed_file(repo_list.get(0), repo_name.get(0), commit.getName());
+
+                        // while ((line = reader.readLine()) != null) {
+                        // writer.write(line + "\n");
+                        // }
+                        // System.out.print(commit + " ");
+                        // count++;
+                    }
+                    // System.out.println("Had " + count + " commits");
+                }
+            }
+            // reader.close();
+            // writer.close();
+            System.out.println();
+        }
+        /*
+         * for (String name : repo_name) {
+         * Repository repo = null;
+         * try {
+         * repo = new FileRepository(System.getProperty("user.dir") + "/" + name +
+         * "/.git");
+         * } catch (IOException e) {
+         * e.printStackTrace();
+         * }
+         * 
+         * Git git = new Git(repo);
+         * 
+         * Iterable<RevCommit> log = git.log().call();
+         * 
+         * 
+         * for(RevCommit commit : log)
+         * {
+         * String main_branch =
+         * }
+         * 
+         * }
+         */
     }
 
 
