@@ -23,7 +23,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 public class App {
     static ArrayList<String> repo_url = new ArrayList<String>(); // clone url for the repository
     static ArrayList<String> repo_name = new ArrayList<String>(); // name of the repository
-    static ArrayList<String> repo_list = new ArrayList<String>(); // 
+    static ArrayList<String> repo_list = new ArrayList<String>(); // git dir
     static boolean output, help;
     static String input_path = null;
 
@@ -56,8 +56,10 @@ public class App {
         
         // Cloning, get commit sha 
         GitFunctions.clone_repo_jgit(repo_url, repo_list);
-        GitFunctions.crawl_commit_id(repo_name);
+
         GitFunctions.all_commit(repo_list, repo_name);
+
+        Gumtree.runGumtreeForAll(repo_name, repo_list);
     }
     
     public static void extract(String file_name) throws FileNotFoundException, IOException

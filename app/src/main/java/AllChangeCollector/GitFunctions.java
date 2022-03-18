@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -165,11 +164,22 @@ public class GitFunctions {
                     }
                     // System.out.println("Walking all commits starting with " + allRefs.size() + "
                     // refs: " + allRefs);
-                    // int count = 0;
+                    int count = 0;
+                    ArrayList<String> commit_sha_list =  new ArrayList<String> (); 
                     for (RevCommit commit : revWalk) {
-                        System.setOut(System.out);
-                        System.out.println(commit.getName()); // sha
-                        Gumtree.get_changed_file(repo_list.get(0), repo_name.get(0), commit.getName());
+                        
+                        String beforeCommit = commit.getName(); 
+                        if(commit_sha_list.size() == 0)
+                        {
+                            commit_sha_list.add(beforeCommit);
+                            count++;
+                        }
+                        else{
+                            Gumtree.get_changed_file(repo_list.get(0), repo_name.get(0), commit_sha_list.get(count - 1),
+                                    beforeCommit); // (repo_git_directory, repo_name, current commit, old commit)
+                            commit_sha_list.add(beforeCommit);
+                            count++;
+                        }
 
                         // while ((line = reader.readLine()) != null) {
                         // writer.write(line + "\n");

@@ -1,12 +1,12 @@
 package AllChangeCollector;
 
-import java.io.Console;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.jgit.annotations.NonNull;
@@ -30,66 +30,55 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 
 public class Gumtree {
     // runs gumtree for all(just only runs individual function accumulately)
-    public static void runGumtreeForAll(ArrayList<String> repo_name) {
-        //makes arraylist to run 
-        for (String curr_repo : repo_name) {
-            ArrayList<PrepareGumtree> commits = new ArrayList<PrepareGumtree>();
-            // commits.repo_name = curr_repo;
-            // Repository repo = curr_repo;
-            // RevWalk walk = new RevWalk(repo);
+    public static void runGumtreeForAll(ArrayList<String> repo_name, ArrayList<String> repo_git) throws IOException {
 
-
-            // for()
+        System.out.println("====  Starting Task : Gumtree ====");
+        for (int i = 0; i < repo_name.size(); i++) {
+            runGumtreeForIndividual(repo_name.get(i), repo_git.get(i));
         }
     }
 
     // 
-    public static void runGumtreeForIndividual(String repo_name)
+    public static void runGumtreeForIndividual(String repo_name, String repo_git) throws IOException
     {
+        System.out.println("====> Task : " + repo_name); // DEBUG
+        Repository repo = new FileRepository(repo_git);
+        RevWalk walk = new RevWalk(repo);
 
+
+        String dir = System.getProperty("user.dir") + "/data/" + repo_name;
+        String file = dir + "/diff.txt";
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        String line = "";
+        while((line = reader.readLine()) != null)
+        {
+            String[] token = line.split("\\s+");
+
+        }
+
+        reader.close();
     }
     
 
 
 
     /*
-    needs to fix : has to receive repository name -> currently git directory
     role : finding changed files between two commits, in this case, current commit and one before
-
     */
-    public static void get_changed_file(String repo_git, String repo_name, String newCommit) throws IOException, GitAPIException {
-        /*
-        directing which directory to save diff entry log - has problem
-        
-        String git_dir = System.getProperty("user.dir");
-        System.out.println("Writing at " + git_dir); // DEBUG
-        File file = new File(git_dir,  "diff.txt");
-        BufferedReader f_reader = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-        
-        String line = "";
-        while ((line = f_reader.readLine()) != null) {
-            line = "old: " + entry.getOldPath() +
-                    ", new: " + entry.getNewPath() +
-                    ", entry: " + entry;
-            }
-        writer.close();
-        f_reader.close();
-        */
+    public static void get_changed_file(String repo_git, String repo_name, String newCommit, String oldCommit)
+            throws IOException, GitAPIException {
         System.out.println("===== Starting Diff of the tree ======"); // DEBUG
         System.out.println(repo_name + " " + newCommit); // DEBUG
 
         //setting output directory
         String git_dir = System.getProperty("user.dir") + "/data/" + repo_name;
-        System.out.println("Writing at " + git_dir); // DEBUG
-        File file = new File(git_dir, repo_name + "_diff.txt");
-        FileOutputStream fos = new FileOutputStream(file, true);
-        PrintStream ps = new PrintStream(fos, true);
-        System.setOut(ps);
+        File file = new File(git_dir, "diff.txt");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
+        String line = "";
 
         try (Repository repository = new FileRepository(repo_git)) {
 
-            ObjectId oldHead = repository.resolve(newCommit + "^^{tree}");
+            ObjectId oldHead = repository.resolve(oldCommit + "^{tree}");
             ObjectId head = repository.resolve(newCommit + "^{tree}"); // current
 
             // System.out.println("Printing diff between tree: " + oldHead + " and " + head);
@@ -111,18 +100,27 @@ public class Gumtree {
                                 .setOldTree(oldTreeIter)
                                 .call();
                         for (DiffEntry entry : diffs) {
-                            System.out.println(newCommit + " " + entry.getNewPath()); // needs confirmation
+                            System.out.println(newCommit + " " + entry.getNewPath() + " " + oldCommit + " " + entry.getOldPath()); // needs confirmation
+                            line = newCommit + " " + oldCommit + " " + entry.getNewPath() + " " + entry.getOldPath(); // 
+                            writer.write(line + "\n");
                         }
                     }
                 }
             }
         }
-        System.setOut(System.out);
-        System.out.println("Done");
+
+        writer.close();
     }
     
-
-
+    /*
+    would it be needed?
+    */
+    private void gitDiff(ArrayList<String> repo_git, ArrayList<String> repo_name) {
+        
+    }
+    
+    
+    
     /*
     executes 'git diff' for two commit
     
