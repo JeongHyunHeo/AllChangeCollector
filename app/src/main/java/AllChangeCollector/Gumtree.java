@@ -9,12 +9,26 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.gumtreediff.actions.EditScript;
+import com.github.gumtreediff.actions.EditScriptGenerator;
+import com.github.gumtreediff.actions.SimplifiedChawatheScriptGenerator;
+import com.github.gumtreediff.actions.model.Action;
+import com.github.gumtreediff.gen.TreeGenerator;
+import com.github.gumtreediff.gen.TreeGenerators;
+import com.github.gumtreediff.matchers.MappingStore;
+import com.github.gumtreediff.matchers.Matcher;
+import com.github.gumtreediff.matchers.Matchers;
+import com.github.gumtreediff.tree.Tree;
+
 import org.eclipse.jgit.annotations.NonNull;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffConfig;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.errors.AmbiguousObjectException;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ObjectId;
@@ -26,6 +40,8 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.eclipse.jgit.treewalk.TreeWalk;
+
 
 
 public class Gumtree {
@@ -54,11 +70,58 @@ public class Gumtree {
         {
             String[] token = line.split("\\s+");
 
+            RevCommit commitBIC = walk.parseCommit(repo.resolve(token[0]));
+            RevCommit commitBBIC = walk.parseCommit(repo.resolve(token[1]));
+
+            String pathBIC = token[2];
+            String pathBBIC = token[3];
+
+            String idBIC = getID(repo, token[0], pathBIC);
+            String idBBIC = getID(repo, token[1], pathBBIC);
+
+            Run.initGenerators();
+            
+            String srcFile = "file_v0.java";
+            String dstFile = "file_v1.java";
+            Tree src = TreeGenerators.getInstance().getTree(srcFile).getRoot(); // retrieves and applies the default
+                                                                                // parser for the file
+            Tree dst = TreeGenerators.getInstance().getTree(dstFile).getRoot(); // retrieves and applies the default
+                                                                                // parser for the file
+            Matcher defaultMatcher = Matchers.getInstance().getMatcher(); // retrieves the default matcher
+            MappingStore mappings = defaultMatcher.match(src, dst); // computes the mappings between the trees
+            EditScriptGenerator editScriptGenerator = new SimplifiedChawatheScriptGenerator(); // instantiates the
+                                                                                               // simplified Chawathe
+                                                                                               // script generator
+            EditScript actions = editScriptGenerator.computeActions(mappings); // computes the edit script
+
+            
+
         }
 
         reader.close();
     }
     
+    public static String getID(Repository repo, String sha, String path) 
+            throws RevisionSyntaxException, AmbiguousObjectException, IncorrectObjectTypeException, IOException 
+    {
+        final ObjectId id = repo.resolve(sha);
+        ObjectReader reader = repo.newObjectReader();
+
+        RevWalk walk = new RevWalk(reader);
+        RevCommit commit = walk.parseCommit(id);
+        walk.close();
+
+        RevTree tree = commit.getTree();
+        TreeWalk treewalk = TreeWalk.forPath(reader, path, tree);
+
+        if (treewalk != null) {
+            byte[] data = reader.open(treewalk.getObjectId(0)).getBytes();
+            reader.close();
+            return new String(data, "utf-8");
+        } else {
+            return "";
+        }
+    }
 
 
 
@@ -101,7 +164,7 @@ public class Gumtree {
                                 .call();
                         for (DiffEntry entry : diffs) {
                             System.out.println(newCommit + " " + entry.getNewPath() + " " + oldCommit + " " + entry.getOldPath()); // needs confirmation
-                            line = newCommit + " " + oldCommit + " " + entry.getNewPath() + " " + entry.getOldPath(); // 
+                            line = newCommit + " " + oldCommit + " " + entry.getNewPath() + " " + entry.getOldPath() + " "; // 
                             writer.write(line + "\n");
                         }
                     }

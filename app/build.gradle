@@ -33,8 +33,16 @@ dependencies {
     // https://mvnrepository.com/artifact/commons-io/commons-io
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
 
-    // https://mvnrepository.com/artifact/com.github.gumtreediff/core
-    runtimeOnly group: 'com.github.gumtreediff', name: 'core', version: '3.0.0'
+    implementation 'com.github.gumtreediff:core:3.0.0'
+
+    // https://mvnrepository.com/artifact/com.github.gumtreediff/client
+    implementation group: 'com.github.gumtreediff', name: 'client', version: '3.0.0'
+
+    // https://mvnrepository.com/artifact/com.github.gumtreediff/gen.jdt
+    implementation group: 'com.github.gumtreediff', name: 'gen.jdt', version: '3.0.0'
+
+
+    compile "org.slf4j:slf4j-simple:1.6.1"
 }
 
 application {
