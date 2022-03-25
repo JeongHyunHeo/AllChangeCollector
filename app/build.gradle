@@ -41,8 +41,13 @@ dependencies {
     // https://mvnrepository.com/artifact/com.github.gumtreediff/gen.jdt
     implementation group: 'com.github.gumtreediff', name: 'gen.jdt', version: '3.0.0'
 
+    // https://mvnrepository.com/artifact/com.github.gumtreediff/client.diff
+    implementation group: 'com.github.gumtreediff', name: 'client.diff', version: '3.0.0'
 
-    compile "org.slf4j:slf4j-simple:1.6.1"
+
+
+
+    // compile "org.slf4j:slf4j-simple:1.6.1"
 }
 
 application {

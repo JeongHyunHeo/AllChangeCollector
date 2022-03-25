@@ -12,14 +12,14 @@ import java.util.List;
 import com.github.gumtreediff.actions.EditScript;
 import com.github.gumtreediff.actions.EditScriptGenerator;
 import com.github.gumtreediff.actions.SimplifiedChawatheScriptGenerator;
-import com.github.gumtreediff.actions.model.Action;
-import com.github.gumtreediff.gen.TreeGenerator;
 import com.github.gumtreediff.gen.TreeGenerators;
 import com.github.gumtreediff.matchers.MappingStore;
 import com.github.gumtreediff.matchers.Matcher;
 import com.github.gumtreediff.matchers.Matchers;
 import com.github.gumtreediff.tree.Tree;
+import com.github.gumtreediff.client.Run;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.annotations.NonNull;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -54,20 +54,23 @@ public class Gumtree {
         }
     }
 
-    // 
     public static void runGumtreeForIndividual(String repo_name, String repo_git) throws IOException
     {
         System.out.println("====> Task : " + repo_name); // DEBUG
         Repository repo = new FileRepository(repo_git);
         RevWalk walk = new RevWalk(repo);
 
-
         String dir = System.getProperty("user.dir") + "/data/" + repo_name;
         String file = dir + "/diff.txt";
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String line = "";
-        while((line = reader.readLine()) != null)
-        {
+
+        // setting output directory
+        String git_dir = System.getProperty("user.dir") + "/data/" + repo_name;
+        File file_log = new File(git_dir, "gumtree_log.txt");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file_log, true));
+        
+        while ((line = reader.readLine()) != null) {
             String[] token = line.split("\\s+");
 
             RevCommit commitBIC = walk.parseCommit(repo.resolve(token[0]));
@@ -76,16 +79,18 @@ public class Gumtree {
             String pathBIC = token[2];
             String pathBBIC = token[3];
 
-            String idBIC = getID(repo, token[0], pathBIC);
-            String idBBIC = getID(repo, token[1], pathBBIC);
+            // String idBIC = getID(repo, commitBIC.getName(), pathBIC, repo_name);
+            // String idBBIC = getID(repo, commitBBIC.getName(), pathBBIC);
 
             Run.initGenerators();
-            
-            String srcFile = "file_v0.java";
-            String dstFile = "file_v1.java";
-            Tree src = TreeGenerators.getInstance().getTree(srcFile).getRoot(); // retrieves and applies the default
+
+            //testing
+            String src_byte = getID_BIC(repo, commitBIC.getName(), pathBIC, repo_name);
+            String dst_byte = getID_BBIC(repo, commitBBIC.getName(), pathBBIC, repo_name);
+
+            Tree src = TreeGenerators.getInstance().getTree(src_byte).getRoot(); // retrieves and applies the default
                                                                                 // parser for the file
-            Tree dst = TreeGenerators.getInstance().getTree(dstFile).getRoot(); // retrieves and applies the default
+            Tree dst = TreeGenerators.getInstance().getTree(dst_byte).getRoot(); // retrieves and applies the default
                                                                                 // parser for the file
             Matcher defaultMatcher = Matchers.getInstance().getMatcher(); // retrieves the default matcher
             MappingStore mappings = defaultMatcher.match(src, dst); // computes the mappings between the trees
@@ -94,16 +99,23 @@ public class Gumtree {
                                                                                                // script generator
             EditScript actions = editScriptGenerator.computeActions(mappings); // computes the edit script
 
-            
+            String line_log = actions.asList().toString();
+
+            writer.write(line_log + "\n");
 
         }
-
+        
+        walk.close();
+        writer.close();
         reader.close();
     }
     
-    public static String getID(Repository repo, String sha, String path) 
+    public static String getID_BIC(Repository repo, String sha, String path, String repo_name) 
             throws RevisionSyntaxException, AmbiguousObjectException, IncorrectObjectTypeException, IOException 
     {
+        String dir = System.getProperty("user.dir") + "/data/" + repo_name;
+        File file_content = new File(dir, "BIC.java");
+
         final ObjectId id = repo.resolve(sha);
         ObjectReader reader = repo.newObjectReader();
 
@@ -117,21 +129,47 @@ public class Gumtree {
         if (treewalk != null) {
             byte[] data = reader.open(treewalk.getObjectId(0)).getBytes();
             reader.close();
-            return new String(data, "utf-8");
+
+            FileUtils.writeByteArrayToFile(file_content, data);
+            return file_content.getPath();
         } else {
-            return "";
+            System.out.println("Error writing file BIC.java for " + sha);
         }
+        return file_content.getPath();
     }
+    
+    public static String getID_BBIC(Repository repo, String sha, String path, String repo_name)
+            throws RevisionSyntaxException, AmbiguousObjectException, IncorrectObjectTypeException, IOException {
+        String dir = System.getProperty("user.dir") + "/data/" + repo_name;
+        File file_content = new File(dir, "BBIC.java");
 
+        final ObjectId id = repo.resolve(sha);
+        ObjectReader reader = repo.newObjectReader();
 
+        RevWalk walk = new RevWalk(reader);
+        RevCommit commit = walk.parseCommit(id);
+        walk.close();
+
+        RevTree tree = commit.getTree();
+        TreeWalk treewalk = TreeWalk.forPath(reader, path, tree);
+
+        if (treewalk != null) {
+            byte[] data = reader.open(treewalk.getObjectId(0)).getBytes();
+            reader.close();
+
+            FileUtils.writeByteArrayToFile(file_content, data); // write to local file
+            return file_content.getPath();
+        } else {
+            System.out.println("Error writing file for BBIC.java: " + sha);
+        }
+        return file_content.getPath();
+    }
 
     /*
     role : finding changed files between two commits, in this case, current commit and one before
     */
     public static void get_changed_file(String repo_git, String repo_name, String newCommit, String oldCommit)
             throws IOException, GitAPIException {
-        System.out.println("===== Starting Diff of the tree ======"); // DEBUG
-        System.out.println(repo_name + " " + newCommit); // DEBUG
 
         //setting output directory
         String git_dir = System.getProperty("user.dir") + "/data/" + repo_name;
@@ -163,9 +201,15 @@ public class Gumtree {
                                 .setOldTree(oldTreeIter)
                                 .call();
                         for (DiffEntry entry : diffs) {
-                            System.out.println(newCommit + " " + entry.getNewPath() + " " + oldCommit + " " + entry.getOldPath()); // needs confirmation
-                            line = newCommit + " " + oldCommit + " " + entry.getNewPath() + " " + entry.getOldPath() + " "; // 
-                            writer.write(line + "\n");
+                            String str_new = entry.getNewPath();
+                            String str_old = entry.getOldPath();
+                            str_new = str_new.substring(str_new.length() - 5, str_new.length());
+                            str_old = str_old.substring(str_old.length() - 5, str_old.length());
+                            if (str_new.equals(".java") && str_old.equals(".java")) { // only save file with extension of '.java'
+                                line = newCommit + " " + oldCommit + " " + entry.getNewPath() + " " + entry.getOldPath() + " "; // 
+                                writer.write(line + "\n");
+                            }
+
                         }
                     }
                 }
