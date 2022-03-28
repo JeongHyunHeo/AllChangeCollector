@@ -128,6 +128,7 @@ public class GitFunctions {
     public static void all_commit(ArrayList<String> repo_list, ArrayList<String> repo_name)
             throws IOException, GitAPIException {
         System.out.println("===== Starting Task : Commit ID Collecting(all commit) ======");
+        int i = 0; // to keep the connection between repo_list and repo_name
         for (String name : repo_list) {
             // String work_dir = System.getProperty("user.dir") + "/data/" +
             // repo_name.get(i);
@@ -165,17 +166,15 @@ public class GitFunctions {
                     // System.out.println("Walking all commits starting with " + allRefs.size() + "
                     // refs: " + allRefs);
                     int count = 0;
-                    ArrayList<String> commit_sha_list =  new ArrayList<String> (); 
+                    ArrayList<String> commit_sha_list = new ArrayList<String>();
                     for (RevCommit commit : revWalk) {
-                        
-                        String beforeCommit = commit.getName(); 
-                        if(commit_sha_list.size() == 0)
-                        {
+
+                        String beforeCommit = commit.getName();
+                        if (commit_sha_list.size() == 0) {
                             commit_sha_list.add(beforeCommit);
                             count++;
-                        }
-                        else{
-                            Gumtree.get_changed_file(repo_list.get(0), repo_name.get(0), commit_sha_list.get(count - 1),
+                        } else {
+                            Gumtree.get_changed_file(repo_list.get(i), repo_name.get(i), commit_sha_list.get(count - 1),
                                     beforeCommit); // (repo_git_directory, repo_name, current commit, old commit)
                             commit_sha_list.add(beforeCommit);
                             count++;
@@ -189,6 +188,7 @@ public class GitFunctions {
                     }
                     // System.out.println("Had " + count + " commits");
                 }
+                i++;
             }
             // reader.close();
             // writer.close();

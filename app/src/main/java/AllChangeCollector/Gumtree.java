@@ -82,6 +82,11 @@ public class Gumtree {
             // String idBIC = getID(repo, commitBIC.getName(), pathBIC, repo_name);
             // String idBBIC = getID(repo, commitBBIC.getName(), pathBBIC);
 
+            String file_information = token[0] + " " + pathBIC + "\n";
+            String file_information_before = token[1] + " " + pathBBIC + "\n";
+
+            writer.write(file_information);
+            writer.write(file_information_before);
             Run.initGenerators();
 
             //testing
