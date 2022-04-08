@@ -60,6 +60,11 @@ public class App {
         GitFunctions.all_commit(repo_list, repo_name);
 
         Gumtree.runGumtreeForAll(repo_name, repo_list);
+
+        for (String name : repo_name)
+        {
+            Vectorize.extract_vector(name);
+        }
     }
     
     public static void extract(String file_name) throws FileNotFoundException, IOException

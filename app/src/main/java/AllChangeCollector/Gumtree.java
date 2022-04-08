@@ -104,6 +104,7 @@ public class Gumtree {
                                                                                                // script generator
             EditScript actions = editScriptGenerator.computeActions(mappings); // computes the edit script
 
+            //prints the changes as a list in string format
             String line_log = actions.asList().toString();
 
             writer.write(line_log + "\n");
@@ -198,7 +199,6 @@ public class Gumtree {
                     oldTreeIter.reset(reader, oldHead);
                     CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
                     newTreeIter.reset(reader, head);
-
                     // finally get the list of changed files
                     try (Git git = new Git(repository)) {
                         List<DiffEntry> diffs = git.diff()
