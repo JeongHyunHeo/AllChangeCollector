@@ -7,15 +7,31 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 
+
 public class Vectorize {
+    static HashMap<String, Integer> map = new HashMap<>();
+    
     public static void extract_vector(String repo_name) throws FileNotFoundException, IOException {
         System.out.println("=====> Parsing");
         System.out.println("===========> " + repo_name);
+
+        // reading change file extracted by gumtree
         String dir = System.getProperty("user.dir") + "/data/" + repo_name + "/gumtree_log.txt";
         File file = new File(dir);
-        String vector_file = "gumtree_vector.txt";
+
+        // create diretory to save vector files
+        File directory_vector = new File(System.getProperty("user.dir") + "/vector");
+        File vector_file = null;
+
+        if (!directory_vector.exists()) {
+            directory_vector.mkdir();
+        }
+
+        String vector_file_name = directory_vector.toString();
+        vector_file = new File(vector_file_name, repo_name + "_gumtree_vector.txt");
         BufferedWriter writer = new BufferedWriter(new FileWriter(vector_file));
 
         // reading file
@@ -25,36 +41,51 @@ public class Vectorize {
 
             // read each line
             boolean add = false;
+            boolean hash = false;
             while ((line = reader.readLine()) != null) {
                 StringTokenizer st = new StringTokenizer(line);
 
                 // examine tokens and write for matching string
                 while (st.hasMoreTokens()) {
                     String st_l = st.nextToken();
-                    
-                    // 
-                    
 
-                    System.out.println("substring: " + st_l); // DEBUG
-
-                    //
-                    if (st_l.equals("---")) {
-                        add = true;
-                    }
-                    if(st_l.equals("==="))
-                    {
-                        add = false;
+                    if (st_l.matches("insert-node|delete-node|update-node|insert-tree|delete-tree|move-tree")) {
                         writer.write(write_line + '\n');
                         write_line = "";
                     }
+                    write_line += decide_node(st_l);
+
+                    if (st_l.equals("---")) {
+                        add = true;
+                    }
+                    if (st_l.equals("===")) {
+                        add = false;
+                    }
+                    if (hash) {
+                        if (map.containsKey(st_l)) {
+                            String code = map.get(st_l).toString();
+                            write_line += code + ", ";
+                        } else {
+                            int hash_num = st_l.hashCode();
+                            map.put(st_l, hash_num);
+                            write_line += hash_num + ", ";
+                        }
+
+                        hash = false;
+                    }
+
                     if (add == true) {
                         if ((!Character.isAlphabetic(st_l.charAt(st_l.length() - 1))) && add) {
                             st_l = st_l.substring(0, st_l.length() - 1);
                         }
                         
-                        for (int i = 0; i < nodes.length; i++) {
-                            if (st_l.equals(nodes[i])) {
-                                write_line += String.valueOf(i+4) + ", ";
+                        
+                        for (int i = 0; i < expanded_node.length; i++) {
+                            if (st_l.equals(expanded_node[i])) {
+                                write_line += String.valueOf(i + 1) + ", ";
+                                if (st_l.equals("SimpleName")) {
+                                    hash = true;
+                                }
                             }
                         }
                     }
@@ -63,6 +94,34 @@ public class Vectorize {
             writer.write(write_line + '\n');
         }
         writer.close();
+    }
+    
+    public static String decide_node(String str)
+    {
+        // on node types
+        if (str.equals("delete-node")) {
+            
+            return "1001, ";
+        }
+        if (str.equals("insert-node")) {
+            return "1000, ";
+        }
+        if (str.equals("update-node")) {
+            return "1002, ";
+        }
+
+        // on tree types
+        if (str.equals("delete-tree")) {
+            return "2001, ";
+        }
+        if (str.equals("insert-tree")) {
+            return "2000, ";
+        }
+        if (str.equals("move-tree")) {
+            return "2002, ";
+        }
+        
+        return "";
     }
     
     static public String[] nodes = {
@@ -175,4 +234,183 @@ public class Vectorize {
             /* 110. */ "ReturnStatement"
     };
 
+    static public String[] expanded_node = {
+            /* 1. */ "ABSTRACT",
+            /* 2. */ "ANNOTATION_PROPERTY",
+            /* 3. */ "AnnotationTypeDeclaration",
+            /* 4. */ "AnnotationTypeMemberDeclaration",
+            /* 5. */ "ANNOTATIONS_PROPERTY",
+            /* 6. */ "AnonymousClassDeclaration",
+            /* 7. */ "ANONYMOUS_CLASS_DECLARATION_PROPERTY",
+            /* 8. */ "ARGUMENTS_PROPERTY",
+            /* 9. */ "ArrayAccess",
+            /* 10. */ "ArrayCreation",
+            /* 11. */ "ARRAY_PROPERTY",
+            /* 12. */ "ArrayType",
+            /* 13. */ "ArrayInitializer",
+            /* 14. */ "AssertStatement",
+            /* 15. */ "Assignment",
+            /* 16. */ "Block",
+            /* 17. */ "BlockComment",
+            /* 18. */ "BODY_DECLARATIONS_PROPERTY",
+            /* 19. */ "BODY_PROPERTY",
+            /* 20. */ "BooleanLiteral",
+            /* 21. */ "BreakStatement",
+            /* 22. */ "CastExpression",
+            /* 23. */ "CatchClause",
+            /* 24. */ "CharacterLiteral",
+            /* 25. */ "ClassInstanceCreation",
+            /* 26. */ "CompilationUnit",
+            /* 27. */ "ConditionalExpression",
+            /* 28. */ "ConstructorInvocation",
+            /* 29. */ "ContinueStatement",
+            /* 30. */ "CreationReference",
+            /* 31. */ "DEFAULT",
+            /* 32. */ "Dimension",
+            /* 33. */ "DIMENSIONS_PROPERTY",
+            /* 34. */ "DoStatement",
+            /* 35. */ "EmptyStatement",
+            /* 36. */ "EnhancedForStatement",
+            /* 37. */ "EnumConstantStatement",
+            /* 38. */ "EnumDeclaration",
+            /* 39. */ "EXCEPTION_PROPERTY",
+            /* 40. */ "ExpressionMethodReference",
+            /* 41. */ "EXPRESSION_PROPERTY",
+            /* 42. */ "ExpressionStatement",
+            /* 43. */ "EXTRA_DIMENSIONS2_PROPERTY",
+            /* 44. */ "FieldAccess",
+            /* 45. */ "FieldDeclaration",
+            /* 46. */ "FINAL",
+            /* 47. */ "ForStatement",
+            /* 48. */ "FRAGMENTS_PROPERTY",
+            /* 49. */ "IDENTIFIER_PROPERTY",
+            /* 50. */ "IfStatement",
+            /* 51. */ "ImportDeclaration",
+            /* 52. */ "IMPORT_PROPERTY",
+            /* 53. */ "INDEX_PROPERTY",
+            /* 54. */ "InfixExpression",
+            /* 55. */ "Initializer",
+            /* 56. */ "INITIALIZER_PROPERTY",
+            /* 57. */ "InstanceofExpression",
+            /* 58. */ "IntersactionType",
+            /* 59. */ "Javadoc",
+            /* 60. */ "JAVADOC_PROPERTY",
+            /* 61. */ "KEYWORD_PROPERTY",
+            /* 62. */ "LabeledStatement",
+            /* 63. */ "LambdaStatement",
+            /* 64. */ "LineComment",
+            /* 65. */ "MALFORMED",
+            /* 66. */ "MarkerAnnotation",
+            /* 67. */ "MemberRef",
+            /* 68. */ "MemberValuePair",
+            /* 69. */ "MethodDeclaration",
+            /* 70. */ "MethodInvocation",
+            /* 71. */ "MethodRef",
+            /* 72. */ "MethodRefParameter",
+            /* 73. */ "Modifier",
+            /* 74. */ "MODIFIERS_PROPERTY",
+            /* 75. */ "MODIFIERS2_PROPERTY",
+            /* 76. */ "NAME_PROPERTY",
+            /* 77. */ "NameQualifiedType",
+            /* 78. */ "NATIVE",
+            /* 79. */ "NONE",
+            /* 80. */ "NormalAnnotation",
+            /* 81. */ "NullLiteral",
+            /* 82. */ "NumberLiteral",
+            /* 83. */ "ON_DEMAND_PROPERTY",
+            /* 84. */ "ORIGINAL",
+            /* 85. */ "PackageDeclaration",
+            /* 86. */ "PACKAGE_PROPERTY",
+            /* 87. */ "ParameterizedType",
+            /* 88. */ "PARAMETERS_PROPERTY",
+            /* 89. */ "ParenthesizedExpression",
+            /* 90. */ "PostfixExpression",
+            /* 91. */ "PrefixExpression",
+            /* 92. */ "PrimitiveType",
+            /* 93. */ "PRIVATE",
+            /* 94. */ "PROTECT",
+            /* 95. */ "PROTECTED",
+            /* 96. */ "PUBLIC",
+            /* 97. */ "QualifiedName",
+            /* 98. */ "QualifiedType",
+            /* 99. */ "QUALIFIER_PROPERTY",
+            /* 100. */ "RECOVERED",
+            /* 101. */ "ReturnStatement",
+            /* 102. */ "SimpleName",
+            /* 103. */ "SimpleType",
+            /* 104. */ "SingleMemberAnnotation",
+            /* 105. */ "SingleVariableDeclaration",
+            /* 106. */ "STATIC",
+            /* 107. */ "STATIC_PROPERTY",
+            /* 108. */ "STRICTFP",
+            /* 109. */ "StringLiteral",
+            /* 110. */ "SuperConstructorInvocation",
+            /* 111. */ "SuperFieldAccess",
+            /* 112. */ "SuperMethodInvocation",
+            /* 113. */ "SuperMethodReference",
+            /* 114. */ "SwitchCase",
+            /* 115. */ "SwitchStatement",
+            /* 116. */ "SYNCHRONIZED",
+            /* 117. */ "SynchronizedStatement",
+            /* 118. */ "TAG_AUTHOR",
+            /* 119. */ "TAG_CODE",
+            /* 120. */ "TAG_DEPRECATED",
+            /* 121. */ "TAG_DOCROOT",
+            /* 122. */ "TagElement",
+            /* 123. */ "TAG_EXCEPTION",
+            /* 124. */ "TAG_INHERITDOC",
+            /* 125. */ "TAG_LINK",
+            /* 126. */ "TAG_LINKPLAIN",
+            /* 127. */ "TAG_LITERAL",
+            /* 128. */ "TAG_NAME_PROPERTY",
+            /* 129. */ "TAG_PARAM",
+            /* 130. */ "TAG_RETURN",
+            /* 131. */ "TAG_SEE",
+            /* 132. */ "TAG_SERIAL",
+            /* 133. */ "TAG_SERIALDATA",
+            /* 134. */ "TAG_SERIALFIELD",
+            /* 135. */ "TAG_SINCE",
+            /* 136. */ "TAG_VERSION",
+            /* 137. */ "TAGS_PROPERTY",
+            /* 138. */ "TextElement",
+            /* 139. */ "TEXT_PROPERTY",
+            /* 140. */ "ThisExpression",
+            /* 141. */ "ThrowExpression",
+            /* 142. */ "TRANSIENT",
+            /* 143. */ "TryStatement",
+            /* 144. */ "TYPE_ARGUMENTS_PROPERTY",
+            /* 145. */ "TYPE_BOUNDS_PROPERTY",
+            /* 146. */ "TypeDeclaration",
+            /* 147. */ "TypeDeclarationStatement",
+            /* 148. */ "TypeLiteral",
+            /* 149. */ "TypeMethodReference",
+            /* 150. */ "TYPE_NAME_PROPERTY",
+            /* 151. */ "TypeParameter",
+            /* 152. */ "TYPE_PROPERTY",
+            /* 153. */ "TYPES_PROPERTY",
+            /* 154. */ "UnionType",
+            /* 155. */ "VALUE_PROPERTY",
+            /* 156. */ "VALUES_PROPERTY",
+            /* 157. */ "VARARGS_ANNOTATIONS_PROPERTY",
+            /* 158. */ "VARARGS_PROPERTY",
+            /* 159. */ "VariableDeclarationExpression",
+            /* 160. */ "VariableDeclarationFragment",
+            /* 161. */ "VarriableDeclarationStatement",
+            /* 162. */ "VOLATILE",
+            /* 163. */ "WhileStatement",
+            /* 164. */ "WildcardType",
+            /* 165. */ "INFIX_EXPRESSION_OPERATOR",
+            /* 166. */ "METHOD_INVOCATION_RECEIVER",
+            /* 167. */ "METHOD_INVOCATION_ARGUMENTS",
+            /* 168. */ "TYPE_DECLARATION_KIND",
+            /* 169. */ "ASSIGNEMENT_OPERATOR",
+            /* 170. */ "PREFIX_EXPRESSION_OPERATOR",
+            /* 171. */ "POSTFIX_EXPRESSION_OPERATOR",
+            /* 172. */ "ExportsDirective",
+            /* 173. */ "ModuleDeclaration",
+            /* 174. */ "ModuleModifier",
+            /* 175. */ "OpensDirective",
+            /* 176. */ "Statement",
+            /* 177. */ "UsesDirective",
+    };
 }
