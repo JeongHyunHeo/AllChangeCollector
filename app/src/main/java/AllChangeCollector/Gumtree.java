@@ -271,9 +271,9 @@ public class Gumtree {
                         for (DiffEntry entry : diffs) {
                             String str_new = entry.getNewPath();
                             String str_old = entry.getOldPath();
-                            if(str_new.length() > 5)
+                            if(str_new.length() > 4)
                                 str_new = str_new.substring(str_new.length() - 5, str_new.length());
-                            if(str_old.length() > 5)
+                            if(str_old.length() > 4)
                                 str_old = str_old.substring(str_old.length() - 5, str_old.length());
                             if (str_new.equals(".java") && str_old.equals(".java")) { // only save file with extension of '.java'
                                 line = newCommit + " " + oldCommit + " " + entry.getNewPath() + " " + entry.getOldPath() + " "; // 
