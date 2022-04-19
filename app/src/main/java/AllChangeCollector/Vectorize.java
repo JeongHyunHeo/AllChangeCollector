@@ -202,28 +202,28 @@ public class Vectorize {
         // on node types
         if (str.equals("delete-node")) {
             
-            return 1;
+            return 0;
         }
         if (str.equals("insert-node")) {
-            return 2;
+            return 1;
         }
         if (str.equals("update-node")) {
-            return 3;
+            return 2;
         }
 
         // on tree types
         if (str.equals("delete-tree")) {
-            return 4;
+            return 3;
         }
         if (str.equals("insert-tree")) {
-            return 5;
+            return 4;
         }
         if (str.equals("move-tree")) {
-            return 6;
+            return 5;
         }
 
         System.out.println("Debug: " + str); // DEBUG
-        return 0;
+        return -1;
     }
     
     static public String[] nodes = {
