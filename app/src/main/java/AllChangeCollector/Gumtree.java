@@ -66,11 +66,14 @@ public class Gumtree {
         String line = "";
 
         // setting output directory
-        String git_dir = System.getProperty("user.dir") + "/data/" + repo_name;
-        File file_log = new File(git_dir, "gumtree_log.txt");
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file_log, true));
         
         while ((line = reader.readLine()) != null) {
+            //opening gumtree_log.txt file
+            String git_dir = System.getProperty("user.dir") + "/data/" + repo_name;
+            File file_log = new File(git_dir, "gumtree_log.txt");
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file_log, false));
+            
+            
             String[] token = line.split("\\s+");
 
             RevCommit commitBIC = walk.parseCommit(repo.resolve(token[0]));
@@ -108,12 +111,15 @@ public class Gumtree {
             String line_log = actions.asList().toString();
 
             writer.write(line_log + "\n");
+            writer.close();
 
+            Vectorize.extract_vector(repo_name);
         }
         
         walk.close();
-        writer.close();
+       
         reader.close();
+
     }
 
     // changing runGumtreeForIndividual -> modifying variable name to hashcode
@@ -130,7 +136,7 @@ public class Gumtree {
         // setting output directory
         String git_dir = System.getProperty("user.dir") + "/data/" + repo_name;
         File file_log = new File(git_dir, "gumtree_log.txt");
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file_log, true));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file_log, false));
 
         while ((line = reader.readLine()) != null) {
             String[] token = line.split("\\s+");

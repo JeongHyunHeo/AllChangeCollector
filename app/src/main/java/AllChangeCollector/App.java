@@ -61,10 +61,10 @@ public class App {
 
         Gumtree.runGumtreeForAll(repo_name, repo_list);
 
-        for (String name : repo_name)
-        {
-            Vectorize.extract_vector(name);
-        }
+        // for (String name : repo_name)
+        // {
+        //     Vectorize.extract_vector_csv(name);
+        // }
     }
     
     public static void extract(String file_name) throws FileNotFoundException, IOException

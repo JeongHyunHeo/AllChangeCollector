@@ -7,12 +7,15 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
 
 public class Vectorize {
     static HashMap<String, Integer> map = new HashMap<>();
+    static ArrayList<Integer> astType = new ArrayList<>();
     
     public static void extract_vector(String repo_name) throws FileNotFoundException, IOException {
         System.out.println("=====> Parsing");
@@ -32,28 +35,38 @@ public class Vectorize {
 
         String vector_file_name = directory_vector.toString();
         vector_file = new File(vector_file_name, repo_name + "_gumtree_vector.txt");
-        BufferedWriter writer = new BufferedWriter(new FileWriter(vector_file));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(vector_file, true));
 
         // reading file
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line = null;
-            String write_line = "";
 
             // read each line
             boolean add = false;
-            boolean hash = false;
+            int oper = 0;
+            String write_line = "";
+            // boolean hash = false;
             while ((line = reader.readLine()) != null) {
                 StringTokenizer st = new StringTokenizer(line);
-
                 // examine tokens and write for matching string
                 while (st.hasMoreTokens()) {
                     String st_l = st.nextToken();
 
                     if (st_l.matches("insert-node|delete-node|update-node|insert-tree|delete-tree|move-tree")) {
-                        writer.write(write_line + '\n');
-                        write_line = "";
+                        // writing
+                        if (astType.size() > 0 && oper != 0)
+                        {
+                            for (int i = 0; i < astType.size(); i++) {
+                                int val = 170 * oper + astType.get(i); //vector
+                                write_line += val + ", ";
+                            }
+                            writer.write(write_line);
+                            write_line = "";
+                            astType.clear();
+                        }
+                        oper = decide_node(st_l);            
                     }
-                    write_line += decide_node(st_l);
+
 
                     if (st_l.equals("---")) {
                         add = true;
@@ -61,6 +74,8 @@ public class Vectorize {
                     if (st_l.equals("===")) {
                         add = false;
                     }
+                    /*
+                    deleted, reason: hashcode wasn't needed for the vectorizing
                     if (hash) {
                         if (map.containsKey(st_l)) {
                             String code = map.get(st_l).toString();
@@ -70,9 +85,10 @@ public class Vectorize {
                             map.put(st_l, hash_num);
                             write_line += hash_num + ", ";
                         }
-
+                    
                         hash = false;
                     }
+                    */
 
                     if (add == true) {
                         if ((!Character.isAlphabetic(st_l.charAt(st_l.length() - 1))) && add) {
@@ -82,10 +98,13 @@ public class Vectorize {
                         
                         for (int i = 0; i < expanded_node.length; i++) {
                             if (st_l.equals(expanded_node[i])) {
-                                write_line += String.valueOf(i + 1) + ", ";
+                                astType.add(i + 1);    
+                                /*
+                                // deleted, reason: hashcode wasn't needed for the vectorizing
                                 if (st_l.equals("SimpleName")) {
                                     hash = true;
                                 }
+                                */
                             }
                         }
                     }
@@ -96,32 +115,115 @@ public class Vectorize {
         writer.close();
     }
     
-    public static String decide_node(String str)
+    public static void extract_vector_csv(String repo_name) throws FileNotFoundException, IOException {
+        System.out.println("=====> Parsing");
+        System.out.println("===========> " + repo_name);
+
+        // reading change file extracted by gumtree
+        String dir = System.getProperty("user.dir") + "/data/" + repo_name + "/gumtree_log.txt";
+        File file = new File(dir);
+
+        // create diretory to save vector files
+        File directory_vector = new File(System.getProperty("user.dir") + "/vector");
+        File vector_file = null;
+
+        if (!directory_vector.exists()) {
+            directory_vector.mkdir();
+        }
+
+        String vector_file_name = directory_vector.toString();
+        vector_file = new File(vector_file_name, repo_name + "_gumtree_vector.csv");
+        //BufferedWriter writer = new BufferedWriter(new FileWriter(vector_file));
+        try (PrintWriter writer = new PrintWriter(new FileWriter(vector_file))) {
+            StringBuilder sb = new StringBuilder();
+
+            // reading file
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line = null;
+
+                // read each line
+                boolean add = false;
+                boolean hash = false;
+                while ((line = reader.readLine()) != null) {
+                    StringTokenizer st = new StringTokenizer(line);
+
+                    // examine tokens and write for matching string
+                    while (st.hasMoreTokens()) {
+                        String st_l = st.nextToken();
+
+                        if (st_l.matches("insert-node|delete-node|update-node|insert-tree|delete-tree|move-tree")) {
+                            writer.write(sb.toString() + "\n");
+                            sb.setLength(0);
+                        }
+                        sb.append(decide_node(st_l));
+
+                        if (st_l.equals("---")) {
+                            add = true;
+                        }
+                        if (st_l.equals("===")) {
+                            add = false;
+                        }
+                        if (hash) {
+                            if (map.containsKey(st_l)) {
+                                String code = map.get(st_l).toString();
+                                sb.append(code + ",");
+                            } else {
+                                int hash_num = st_l.hashCode();
+                                map.put(st_l, hash_num);
+                                sb.append(hash_num + ",");
+                            }
+
+                            hash = false;
+                        }
+
+                        if (add == true) {
+                            if ((!Character.isAlphabetic(st_l.charAt(st_l.length() - 1))) && add) {
+                                st_l = st_l.substring(0, st_l.length() - 1);
+                            }
+
+                            for (int i = 0; i < expanded_node.length; i++) {
+                                if (st_l.equals(expanded_node[i])) {
+                                    sb.append(String.valueOf(i + 1) + ",");
+                                    if (st_l.equals("SimpleName")) {
+                                        hash = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                writer.write(sb.toString() + "\n");
+            }
+        }
+    }
+
+    public static int decide_node(String str)
     {
         // on node types
         if (str.equals("delete-node")) {
             
-            return "1001, ";
+            return 1;
         }
         if (str.equals("insert-node")) {
-            return "1000, ";
+            return 2;
         }
         if (str.equals("update-node")) {
-            return "1002, ";
+            return 3;
         }
 
         // on tree types
         if (str.equals("delete-tree")) {
-            return "2001, ";
+            return 4;
         }
         if (str.equals("insert-tree")) {
-            return "2000, ";
+            return 5;
         }
         if (str.equals("move-tree")) {
-            return "2002, ";
+            return 6;
         }
-        
-        return "";
+
+        System.out.println("Debug: " + str); // DEBUG
+        return 0;
     }
     
     static public String[] nodes = {
