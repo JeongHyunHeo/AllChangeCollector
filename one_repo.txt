@@ -1,1 +1,1 @@
-https://github.com/cabaletta/baritone.git baritone
+https://github.com/google/guice.git guice

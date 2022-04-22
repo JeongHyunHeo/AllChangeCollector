@@ -130,33 +130,9 @@ public class GitFunctions {
         System.out.println("===== Starting Task : Commit ID Collecting(all commit) ======");
         int i = 0; // to keep the connection between repo_list and repo_name
         for (String name : repo_list) {
-            // String work_dir = System.getProperty("user.dir") + "/data/" +
-            // repo_name.get(i);
-            // File file = new File(work_dir, "commitID.txt");
-
-            // System.out.println("current working repo: " + name);
-
-            // BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-            // BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-            // String line = "";
             try (Repository repo = new FileRepository(name)) {
                 // get a list of all known heads, tags, remotes, ...
                 Collection<Ref> allRefs = repo.getAllRefs().values();
-
-                /*
-                 * String working_dir = System.getProperty("user.dir") + "/data/" +
-                 * File file = new File(working_dir, "commitID.txt");
-                 * BoundedReader reader = new BufferedReader(new
-                 * InputStreamReader(process.getInputStream()));
-                 * BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-                 * String line = "";
-                 * while ((line = reader.readLine()) != null) {
-                 * line = line.substring(1, line.length() - 1);
-                 * writer.write(line + "\n");
-                 * }
-                 * writer.close();
-                 * reader.close();
-                 */
 
                 // a RevWalk allows to walk over commits based on some filtering that is defined
                 try (RevWalk revWalk = new RevWalk(repo)) {
@@ -180,13 +156,7 @@ public class GitFunctions {
                             count++;
                         }
 
-                        // while ((line = reader.readLine()) != null) {
-                        // writer.write(line + "\n");
-                        // }
-                        // System.out.print(commit + " ");
-                        // count++;
                     }
-                    // System.out.println("Had " + count + " commits");
                 }
                 i++;
             }
@@ -194,28 +164,6 @@ public class GitFunctions {
             // writer.close();
             System.out.println();
         }
-        /*
-         * for (String name : repo_name) {
-         * Repository repo = null;
-         * try {
-         * repo = new FileRepository(System.getProperty("user.dir") + "/" + name +
-         * "/.git");
-         * } catch (IOException e) {
-         * e.printStackTrace();
-         * }
-         * 
-         * Git git = new Git(repo);
-         * 
-         * Iterable<RevCommit> log = git.log().call();
-         * 
-         * 
-         * for(RevCommit commit : log)
-         * {
-         * String main_branch =
-         * }
-         * 
-         * }
-         */
     }
 
 

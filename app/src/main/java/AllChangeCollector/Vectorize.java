@@ -36,6 +36,7 @@ public class Vectorize {
         String vector_file_name = directory_vector.toString();
         vector_file = new File(vector_file_name, repo_name + "_gumtree_vector.txt");
         BufferedWriter writer = new BufferedWriter(new FileWriter(vector_file, true));
+        String write_line = "";
 
         // reading file
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -44,7 +45,6 @@ public class Vectorize {
             // read each line
             boolean add = false;
             int oper = 0;
-            String write_line = "";
             // boolean hash = false;
             while ((line = reader.readLine()) != null) {
                 StringTokenizer st = new StringTokenizer(line);
@@ -99,19 +99,13 @@ public class Vectorize {
                         for (int i = 0; i < expanded_node.length; i++) {
                             if (st_l.equals(expanded_node[i])) {
                                 astType.add(i + 1);    
-                                /*
-                                // deleted, reason: hashcode wasn't needed for the vectorizing
-                                if (st_l.equals("SimpleName")) {
-                                    hash = true;
-                                }
-                                */
                             }
                         }
                     }
                 }
             }
-            writer.write(write_line + '\n');
         }
+        writer.write(write_line + '\n');
         writer.close();
     }
     
@@ -192,8 +186,8 @@ public class Vectorize {
                         }
                     }
                 }
-                writer.write(sb.toString() + "\n");
             }
+            writer.write(sb.toString() + "\n");
         }
     }
 
