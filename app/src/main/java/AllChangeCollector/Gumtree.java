@@ -51,6 +51,7 @@ public class Gumtree {
         System.out.println("====  Starting Task : Gumtree ====");
         for (int i = 0; i < repo_name.size(); i++) {
             runGumtreeForIndividual(repo_name.get(i), repo_git.get(i));
+            runGumtreeForIndividual_alllog(repo_name.get(i), repo_git.get(i));
         }
     }
 
@@ -66,14 +67,13 @@ public class Gumtree {
         String line = "";
 
         // setting output directory
-        
+
         while ((line = reader.readLine()) != null) {
             //opening gumtree_log.txt file
             String git_dir = System.getProperty("user.dir") + "/data/" + repo_name;
             File file_log = new File(git_dir, "gumtree_log.txt");
             BufferedWriter writer = new BufferedWriter(new FileWriter(file_log, false));
-            
-            
+
             String[] token = line.split("\\s+");
 
             RevCommit commitBIC = walk.parseCommit(repo.resolve(token[0]));
@@ -97,9 +97,9 @@ public class Gumtree {
             String dst_byte = getID_BBIC(repo, commitBBIC.getName(), pathBBIC, repo_name);
 
             Tree src = TreeGenerators.getInstance().getTree(src_byte).getRoot(); // retrieves and applies the default
-                                                                                // parser for the file
+                                                                                 // parser for the file
             Tree dst = TreeGenerators.getInstance().getTree(dst_byte).getRoot(); // retrieves and applies the default
-                                                                                // parser for the file
+                                                                                 // parser for the file
             Matcher defaultMatcher = Matchers.getInstance().getMatcher(); // retrieves the default matcher
             MappingStore mappings = defaultMatcher.match(src, dst); // computes the mappings between the trees
             EditScriptGenerator editScriptGenerator = new SimplifiedChawatheScriptGenerator(); // instantiates the
@@ -113,14 +113,78 @@ public class Gumtree {
             writer.write(line_log + "\n");
             writer.close();
 
-            Vectorize.extract_vector(repo_name);
+            Vectorize.extract_vector(repo_name); // LOC: to fix
         }
-        
+
         walk.close();
-       
+
         reader.close();
 
     }
+    
+    public static void runGumtreeForIndividual_alllog(String repo_name, String repo_git) throws IOException {
+        System.out.println("====> Task : " + repo_name); // DEBUG
+        Repository repo = new FileRepository(repo_git);
+        RevWalk walk = new RevWalk(repo);
+
+        String dir = System.getProperty("user.dir") + "/data/" + repo_name;
+        String file = dir + "/diff.txt";
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        String line = "";
+
+        // setting output directory
+
+        while ((line = reader.readLine()) != null) {
+            // opening gumtree_log.txt file
+            String git_dir = System.getProperty("user.dir") + "/data/" + repo_name;
+            File file_log = new File(git_dir, "gumtree_log_all.txt");
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file_log, true));
+
+            String[] token = line.split("\\s+");
+
+            RevCommit commitBIC = walk.parseCommit(repo.resolve(token[0]));
+            RevCommit commitBBIC = walk.parseCommit(repo.resolve(token[1]));
+
+            String pathBIC = token[2];
+            String pathBBIC = token[3];
+
+            // String idBIC = getID(repo, commitBIC.getName(), pathBIC, repo_name);
+            // String idBBIC = getID(repo, commitBBIC.getName(), pathBBIC);
+
+            String file_information = token[0] + " " + pathBIC + "\n";
+            String file_information_before = token[1] + " " + pathBBIC + "\n";
+
+            writer.write(file_information);
+            writer.write(file_information_before);
+            Run.initGenerators();
+
+            // testing
+            String src_byte = getID_BIC(repo, commitBIC.getName(), pathBIC, repo_name);
+            String dst_byte = getID_BBIC(repo, commitBBIC.getName(), pathBBIC, repo_name);
+
+            Tree src = TreeGenerators.getInstance().getTree(src_byte).getRoot(); // retrieves and applies the default
+                                                                                 // parser for the file
+            Tree dst = TreeGenerators.getInstance().getTree(dst_byte).getRoot(); // retrieves and applies the default
+                                                                                 // parser for the file
+            Matcher defaultMatcher = Matchers.getInstance().getMatcher(); // retrieves the default matcher
+            MappingStore mappings = defaultMatcher.match(src, dst); // computes the mappings between the trees
+            EditScriptGenerator editScriptGenerator = new SimplifiedChawatheScriptGenerator(); // instantiates the
+                                                                                               // simplified Chawathe
+                                                                                               // script generator
+            EditScript actions = editScriptGenerator.computeActions(mappings); // computes the edit script
+
+            // prints the changes as a list in string format
+            String line_log = actions.asList().toString();
+
+            writer.write(line_log + "\n");
+            writer.close();
+        }
+
+        walk.close();
+        reader.close();
+
+    }
+
 
     // changing runGumtreeForIndividual -> modifying variable name to hashcode
     public static void runGumtreeForIndividual_hashcode(String repo_name, String repo_git) throws IOException {
