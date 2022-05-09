@@ -1,15 +1,11 @@
 https://github.com/java-diff-utils/java-diff-utils.git java-diff-utils
 https://github.com/Grasscutters/Grasscutter.git Grasscutter
 https://github.com/jhy/jsoup.git jsoup
-https://github.com/ben-manes/caffeine.git caffeine
-https://github.com/Netflix/Hystrix.git Hystrix
-https://github.com/asLody/VirtualApp.git VirtualApp
 https://github.com/abel533/Mapper.git Mapper
 https://github.com/mc1arke/sonarqube-community-branch-plugin.git sonarqube-community-branch-plugin
 https://github.com/alibaba/arthas.git arthas
 https://github.com/skylot/jadx.git jadx
 https://github.com/zhaojun1998/zfile.git zfile
 https://github.com/zfoo-project/zfoo.git zfoo
-https://github.com/BruceEckel/OnJava8-Examples.git OnJava8-Examples
 https://github.com/seata/seata.git seata
 https://github.com/DV8FromTheWorld/JDA.git JDA

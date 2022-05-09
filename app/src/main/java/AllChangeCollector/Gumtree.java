@@ -51,7 +51,6 @@ public class Gumtree {
         System.out.println("====  Starting Task : Gumtree ====");
         for (int i = 0; i < repo_name.size(); i++) {
             runGumtreeForIndividual(repo_name.get(i), repo_git.get(i));
-            runGumtreeForIndividual_alllog(repo_name.get(i), repo_git.get(i));
         }
     }
 
@@ -67,13 +66,14 @@ public class Gumtree {
         String line = "";
 
         // setting output directory
-
+        
         while ((line = reader.readLine()) != null) {
             //opening gumtree_log.txt file
             String git_dir = System.getProperty("user.dir") + "/data/" + repo_name;
             File file_log = new File(git_dir, "gumtree_log.txt");
             BufferedWriter writer = new BufferedWriter(new FileWriter(file_log, false));
-
+            
+            
             String[] token = line.split("\\s+");
 
             RevCommit commitBIC = walk.parseCommit(repo.resolve(token[0]));
@@ -81,9 +81,6 @@ public class Gumtree {
 
             String pathBIC = token[2];
             String pathBBIC = token[3];
-
-            // String idBIC = getID(repo, commitBIC.getName(), pathBIC, repo_name);
-            // String idBBIC = getID(repo, commitBBIC.getName(), pathBBIC);
 
             String file_information = token[0] + " " + pathBIC + "\n";
             String file_information_before = token[1] + " " + pathBBIC + "\n";
@@ -97,9 +94,9 @@ public class Gumtree {
             String dst_byte = getID_BBIC(repo, commitBBIC.getName(), pathBBIC, repo_name);
 
             Tree src = TreeGenerators.getInstance().getTree(src_byte).getRoot(); // retrieves and applies the default
-                                                                                 // parser for the file
+                                                                                // parser for the file
             Tree dst = TreeGenerators.getInstance().getTree(dst_byte).getRoot(); // retrieves and applies the default
-                                                                                 // parser for the file
+                                                                                // parser for the file
             Matcher defaultMatcher = Matchers.getInstance().getMatcher(); // retrieves the default matcher
             MappingStore mappings = defaultMatcher.match(src, dst); // computes the mappings between the trees
             EditScriptGenerator editScriptGenerator = new SimplifiedChawatheScriptGenerator(); // instantiates the
@@ -113,78 +110,14 @@ public class Gumtree {
             writer.write(line_log + "\n");
             writer.close();
 
-            Vectorize.extract_vector(repo_name); // LOC: to fix
+            Vectorize.extract_vector(repo_name);
         }
-
+        
         walk.close();
-
+       
         reader.close();
 
     }
-    
-    public static void runGumtreeForIndividual_alllog(String repo_name, String repo_git) throws IOException {
-        System.out.println("====> Task : " + repo_name); // DEBUG
-        Repository repo = new FileRepository(repo_git);
-        RevWalk walk = new RevWalk(repo);
-
-        String dir = System.getProperty("user.dir") + "/data/" + repo_name;
-        String file = dir + "/diff.txt";
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        String line = "";
-
-        // setting output directory
-
-        while ((line = reader.readLine()) != null) {
-            // opening gumtree_log.txt file
-            String git_dir = System.getProperty("user.dir") + "/data/" + repo_name;
-            File file_log = new File(git_dir, "gumtree_log_all.txt");
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file_log, true));
-
-            String[] token = line.split("\\s+");
-
-            RevCommit commitBIC = walk.parseCommit(repo.resolve(token[0]));
-            RevCommit commitBBIC = walk.parseCommit(repo.resolve(token[1]));
-
-            String pathBIC = token[2];
-            String pathBBIC = token[3];
-
-            // String idBIC = getID(repo, commitBIC.getName(), pathBIC, repo_name);
-            // String idBBIC = getID(repo, commitBBIC.getName(), pathBBIC);
-
-            String file_information = token[0] + " " + pathBIC + "\n";
-            String file_information_before = token[1] + " " + pathBBIC + "\n";
-
-            writer.write(file_information);
-            writer.write(file_information_before);
-            Run.initGenerators();
-
-            // testing
-            String src_byte = getID_BIC(repo, commitBIC.getName(), pathBIC, repo_name);
-            String dst_byte = getID_BBIC(repo, commitBBIC.getName(), pathBBIC, repo_name);
-
-            Tree src = TreeGenerators.getInstance().getTree(src_byte).getRoot(); // retrieves and applies the default
-                                                                                 // parser for the file
-            Tree dst = TreeGenerators.getInstance().getTree(dst_byte).getRoot(); // retrieves and applies the default
-                                                                                 // parser for the file
-            Matcher defaultMatcher = Matchers.getInstance().getMatcher(); // retrieves the default matcher
-            MappingStore mappings = defaultMatcher.match(src, dst); // computes the mappings between the trees
-            EditScriptGenerator editScriptGenerator = new SimplifiedChawatheScriptGenerator(); // instantiates the
-                                                                                               // simplified Chawathe
-                                                                                               // script generator
-            EditScript actions = editScriptGenerator.computeActions(mappings); // computes the edit script
-
-            // prints the changes as a list in string format
-            String line_log = actions.asList().toString();
-
-            writer.write(line_log + "\n");
-            writer.close();
-        }
-
-        walk.close();
-        reader.close();
-
-    }
-
 
     // changing runGumtreeForIndividual -> modifying variable name to hashcode
     public static void runGumtreeForIndividual_hashcode(String repo_name, String repo_git) throws IOException {
@@ -321,7 +254,51 @@ public class Gumtree {
             ObjectId oldHead = repository.resolve(oldCommit + "^{tree}");
             ObjectId head = repository.resolve(newCommit + "^{tree}"); // current
 
-            // System.out.println("Printing diff between tree: " + oldHead + " and " + head);
+            if (head == null || oldHead == null) {
+                // For exception (when it comes to first commit)
+            } else {
+                // prepare the two iterators to compute the diff between
+                try (ObjectReader reader = repository.newObjectReader()) {
+                    CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
+                    oldTreeIter.reset(reader, oldHead);
+                    CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
+                    newTreeIter.reset(reader, head);
+                    // finally get the list of changed files
+                    try (Git git = new Git(repository)) {
+                        List<DiffEntry> diffs = git.diff()
+                                .setNewTree(newTreeIter)
+                                .setOldTree(oldTreeIter)
+                                .call();
+                        for (DiffEntry entry : diffs) {
+                            String str_new = entry.getNewPath();
+                            String str_old = entry.getOldPath();
+                            if (str_new.endsWith(".java") && str_old.endsWith(".java")) { // only save file with extension of '.java'
+                                line = newCommit + " " + oldCommit + " " + entry.getNewPath() + " " + entry.getOldPath() + " "; // 
+                                writer.write(line + "\n");
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
+        writer.close();
+    }
+
+    public static void get_log(String repo_git, String repo_name, String newCommit, String oldCommit)
+            throws IOException, GitAPIException {
+
+        // setting output directory
+        String git_dir = System.getProperty("user.dir") + "/data/" + repo_name;
+        File file = new File(git_dir, "commit_file.txt");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
+        String line = "";
+
+        try (Repository repository = new FileRepository(repo_git)) {
+
+            ObjectId oldHead = repository.resolve(oldCommit + "^{tree}");
+            ObjectId head = repository.resolve(newCommit + "^{tree}"); // current
 
             if (head == null || oldHead == null) {
                 // For exception (when it comes to first commit)
@@ -341,10 +318,9 @@ public class Gumtree {
                         for (DiffEntry entry : diffs) {
                             String str_new = entry.getNewPath();
                             String str_old = entry.getOldPath();
-                            // str_new = str_new.substring(str_new.length() - 5, str_new.length());
-                            // str_old = str_old.substring(str_old.length() - 5, str_old.length());
-                            if (str_new.endsWith(".java") && str_old.endsWith(".java")) { // only save file with extension of '.java'
-                                line = newCommit + " " + oldCommit + " " + entry.getNewPath() + " " + entry.getOldPath() + " "; // 
+                            if (str_new.endsWith(".java") && str_old.endsWith(".java")) { // only save file with
+                                                                                          // extension of '.java'
+                                line = newCommit + ", " + oldCommit + ", " + entry.getNewPath();
                                 writer.write(line + "\n");
                             }
 
@@ -356,16 +332,6 @@ public class Gumtree {
 
         writer.close();
     }
-    
-    /*
-    would it be needed?
-    */
-    private void gitDiff(ArrayList<String> repo_git, ArrayList<String> repo_name) {
-        
-    }
-    
-    
-    
     /*
     executes 'git diff' for two commit
     

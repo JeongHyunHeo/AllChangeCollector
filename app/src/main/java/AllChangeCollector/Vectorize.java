@@ -44,7 +44,7 @@ public class Vectorize {
             // read each line
             boolean add = false;
             int oper = 0;
-            // boolean hash = false;
+            // boolean hash = false;    
 
             while ((line = reader.readLine()) != null) {
                 StringTokenizer st = new StringTokenizer(line);
@@ -57,14 +57,12 @@ public class Vectorize {
                     }
                     if (st_l.matches("insert-node|delete-node|update-node|insert-tree|delete-tree|move-tree")) {
                         // writing
-                        if (astType.size() > 0 && oper != -1) { // to fix: main problem
+                        if (astType.size() > 0 && oper != -1) { // FIX: remove ',' on each line
                             for (int i = 0; i < astType.size(); i++) {
                                 int val = 170 * oper + astType.get(i); //vector
-                                write_line += val + ",";
+                                write_line += val + ", ";
                             }
                         }
-                        writer.write(write_line);
-                        write_line = "";
                         astType.clear();
                         oper = decide_node(st_l);
                     }
@@ -104,9 +102,13 @@ public class Vectorize {
                     }
                 }
             }
+            if (no_change == false) {
+                if (write_line.length() > 2)
+                    write_line.substring(0, write_line.length() - 2);
+                writer.write(write_line + '\n');
+            }
         }
-        if(no_change == false)
-            writer.write(write_line + '\n');
+        
         writer.close();
     }
     
