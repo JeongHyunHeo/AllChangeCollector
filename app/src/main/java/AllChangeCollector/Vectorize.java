@@ -102,11 +102,7 @@ public class Vectorize {
                     }
                 }
             }
-            if (no_change == false) {
-                if (write_line.length() > 2)
-                    write_line.substring(0, write_line.length() - 2);
-                writer.write(write_line + '\n');
-            }
+            writer.write(write_line + '\n');
         }
         
         writer.close();
