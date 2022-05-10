@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -184,6 +186,7 @@ public class Gumtree {
     public static String getID_BIC(Repository repo, String sha, String path, String repo_name) 
             throws RevisionSyntaxException, AmbiguousObjectException, IncorrectObjectTypeException, IOException 
     {
+        String utf_string = "";
         String dir = System.getProperty("user.dir") + "/data/" + repo_name;
         File file_content = new File(dir, "BIC.java");
 
@@ -202,11 +205,17 @@ public class Gumtree {
             reader.close();
 
             FileUtils.writeByteArrayToFile(file_content, data);
-            return file_content.getPath();
+
+            // UTF encoding
+            String rawString = file_content.getPath();
+            ByteBuffer buffer = StandardCharsets.UTF_8.encode(rawString);
+            utf_string = StandardCharsets.UTF_8.decode(buffer).toString();
+            
+            return utf_string;
         } else {
             System.out.println("Error writing file BIC.java for " + sha);
         }
-        return file_content.getPath();
+        return utf_string;
     }
     
     public static String getID_BBIC(Repository repo, String sha, String path, String repo_name)
@@ -224,16 +233,24 @@ public class Gumtree {
         RevTree tree = commit.getTree();
         TreeWalk treewalk = TreeWalk.forPath(reader, path, tree);
 
+        String utf_string = "";
         if (treewalk != null) {
             byte[] data = reader.open(treewalk.getObjectId(0)).getBytes();
             reader.close();
 
+
             FileUtils.writeByteArrayToFile(file_content, data); // write to local file
-            return file_content.getPath();
+
+            //UTF encoding
+            String rawString = file_content.getPath();
+            ByteBuffer buffer = StandardCharsets.UTF_8.encode(rawString);
+            utf_string = StandardCharsets.UTF_8.decode(buffer).toString(); 
+
+            return utf_string;
         } else {
             System.out.println("Error writing file for BBIC.java: " + sha);
         }
-        return file_content.getPath();
+        return utf_string;
     }
 
     /*
