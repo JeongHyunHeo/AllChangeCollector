@@ -6,8 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +20,7 @@ import com.github.gumtreediff.matchers.Matchers;
 import com.github.gumtreediff.tree.Tree;
 import com.github.gumtreediff.client.Run;
 
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.annotations.NonNull;
 import org.eclipse.jgit.api.Git;
@@ -204,18 +204,16 @@ public class Gumtree {
             byte[] data = reader.open(treewalk.getObjectId(0)).getBytes();
             reader.close();
 
-            FileUtils.writeByteArrayToFile(file_content, data);
+            //FileUtils.writeByteArrayToFile(file_content, data);
 
-            // UTF encoding
-            String rawString = file_content.getPath();
-            ByteBuffer buffer = StandardCharsets.UTF_8.encode(rawString);
-            utf_string = StandardCharsets.UTF_8.decode(buffer).toString();
-            
-            return utf_string;
+            utf_string = StringUtils.newStringUtf8(data);
+            FileUtils.writeStringToFile(file_content, utf_string, Charset.forName("utf8"));
+
+            return file_content.getPath();
         } else {
             System.out.println("Error writing file BIC.java for " + sha);
         }
-        return utf_string;
+        return file_content.getPath();
     }
     
     public static String getID_BBIC(Repository repo, String sha, String path, String repo_name)
@@ -239,18 +237,16 @@ public class Gumtree {
             reader.close();
 
 
-            FileUtils.writeByteArrayToFile(file_content, data); // write to local file
+            //FileUtils.writeByteArrayToFile(file_content, data); // write to local file
 
-            //UTF encoding
-            String rawString = file_content.getPath();
-            ByteBuffer buffer = StandardCharsets.UTF_8.encode(rawString);
-            utf_string = StandardCharsets.UTF_8.decode(buffer).toString(); 
+            utf_string = StringUtils.newStringUtf8(data);
+            FileUtils.writeStringToFile(file_content, utf_string, Charset.forName("utf8"));
 
-            return utf_string;
+            return file_content.getPath();
         } else {
             System.out.println("Error writing file for BBIC.java: " + sha);
         }
-        return utf_string;
+        return file_content.getPath();
     }
 
     /*
