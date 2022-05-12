@@ -63,7 +63,7 @@ public class Gumtree {
         RevWalk walk = new RevWalk(repo);
 
         String dir = System.getProperty("user.dir") + "/data/" + repo_name;
-        String file = dir + "/diff.csv";
+        String file = dir + "/diff.txt";
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String line = "";
 
@@ -257,7 +257,7 @@ public class Gumtree {
 
         //setting output directory
         String git_dir = System.getProperty("user.dir") + "/data/" + repo_name;
-        File file = new File(git_dir, "diff.csv");
+        File file = new File(git_dir, "diff.txt");
         BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
         String line = "";
 
@@ -286,7 +286,7 @@ public class Gumtree {
                             String str_new = entry.getNewPath();
                             String str_old = entry.getOldPath();
                             if (str_new.endsWith(".java") && str_old.endsWith(".java")) { // only save file with extension of '.java'
-                                line = newCommit + "," + oldCommit + "," + entry.getNewPath() + "," + entry.getOldPath(); // 
+                                line = newCommit + " " + oldCommit + " " + entry.getNewPath() + " " + entry.getOldPath(); // 
                                 writer.write(line + "\n");
                             }
 
@@ -333,7 +333,7 @@ public class Gumtree {
                             String str_old = entry.getOldPath();
                             if (str_new.endsWith(".java") && str_old.endsWith(".java")) { // only save file with
                                                                                           // extension of '.java'
-                                line = newCommit + ", " + oldCommit + ", " + entry.getNewPath();
+                                line = newCommit + "," + oldCommit + "," + entry.getNewPath() +"," + entry.getOldPath();
                                 writer.write(line + "\n");
                             }
 
