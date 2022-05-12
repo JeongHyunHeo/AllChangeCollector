@@ -111,6 +111,8 @@ public class GitFunctions {
         System.out.println("All commit ID extracted\n\n");
     }
 
+
+    // UNUSED
     public static void ranged_commit(ArrayList<String> repo_list, ArrayList<String> repo_name)
             throws IOException, GitAPIException {
         System.out.println("===== Starting Task : Commit ID Collecting(ranged commit) ======");

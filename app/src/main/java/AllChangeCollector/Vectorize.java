@@ -32,7 +32,7 @@ public class Vectorize {
         }
 
         String vector_file_name = directory_vector.toString();
-        vector_file = new File(vector_file_name, repo_name + "_gumtree_vector.txt");
+        vector_file = new File(vector_file_name, repo_name + "_gumtree_vector.csv");
         BufferedWriter writer = new BufferedWriter(new FileWriter(vector_file, true));
         String write_line = "";
 
@@ -60,7 +60,7 @@ public class Vectorize {
                         if (astType.size() > 0 && oper != -1) { // FIX: remove ',' on each line
                             for (int i = 0; i < astType.size(); i++) {
                                 int val = 170 * oper + astType.get(i); //vector
-                                write_line += val + ", ";
+                                write_line += val + ",";
                             }
                         }
                         astType.clear();

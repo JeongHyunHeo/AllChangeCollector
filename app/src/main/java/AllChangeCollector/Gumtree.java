@@ -257,7 +257,7 @@ public class Gumtree {
 
         //setting output directory
         String git_dir = System.getProperty("user.dir") + "/data/" + repo_name;
-        File file = new File(git_dir, "diff.txt");
+        File file = new File(git_dir, "diff.csv");
         BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
         String line = "";
 
@@ -286,7 +286,7 @@ public class Gumtree {
                             String str_new = entry.getNewPath();
                             String str_old = entry.getOldPath();
                             if (str_new.endsWith(".java") && str_old.endsWith(".java")) { // only save file with extension of '.java'
-                                line = newCommit + " " + oldCommit + " " + entry.getNewPath() + " " + entry.getOldPath() + " "; // 
+                                line = newCommit + "," + oldCommit + "," + entry.getNewPath() + "," + entry.getOldPath(); // 
                                 writer.write(line + "\n");
                             }
 
@@ -304,7 +304,7 @@ public class Gumtree {
 
         // setting output directory
         String git_dir = System.getProperty("user.dir") + "/data/" + repo_name;
-        File file = new File(git_dir, "commit_file.txt");
+        File file = new File(git_dir, "commit_file.csv");
         BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
         String line = "";
 

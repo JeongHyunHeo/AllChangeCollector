@@ -1,5 +1,4 @@
 https://github.com/java-diff-utils/java-diff-utils.git java-diff-utils
-https://github.com/Grasscutters/Grasscutter.git Grasscutter
 https://github.com/jhy/jsoup.git jsoup
 https://github.com/abel533/Mapper.git Mapper
 https://github.com/mc1arke/sonarqube-community-branch-plugin.git sonarqube-community-branch-plugin
