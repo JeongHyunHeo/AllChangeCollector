@@ -63,7 +63,7 @@ public class Gumtree {
         RevWalk walk = new RevWalk(repo);
 
         String dir = System.getProperty("user.dir") + "/data/" + repo_name;
-        String file = dir + "/diff.txt";
+        String file = dir + "/diff.csv";
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String line = "";
 
