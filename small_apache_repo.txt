@@ -1,0 +1,8 @@
+https://github.com/apache/tiles.git tiles
+https://github.com/apache/commons-bcel.git commons-bcel
+https://github.com/apache/commons-jcs.git commons-jcs
+https://github.com/apache/hama.git hama
+https://github.com/apache/sentry.git sentry
+https://github.com/apache/sandesha.git sandesha
+https://github.com/apache/creadur-rat.git creadur-rat
+https://github.com/apache/xmlbeans.git xmlbeans
