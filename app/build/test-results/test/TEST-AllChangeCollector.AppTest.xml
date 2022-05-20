@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="AllChangeCollector.AppTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2022-05-19T10:20:56" hostname="heojeonghyeon-ui-MacBookPro.local" time="0.014">
+<testsuite name="AllChangeCollector.AppTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2022-05-20T04:42:49" hostname="heojeonghyeon-ui-MacBookPro.local" time="0.016">
   <properties/>
-  <testcase name="appHasAGreeting()" classname="AllChangeCollector.AppTest" time="0.014"/>
+  <testcase name="appHasAGreeting()" classname="AllChangeCollector.AppTest" time="0.016"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

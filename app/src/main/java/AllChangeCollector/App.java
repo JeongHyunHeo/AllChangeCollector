@@ -24,8 +24,10 @@ public class App {
     static ArrayList<String> repo_url = new ArrayList<String>(); // clone url for the repository
     static ArrayList<String> repo_name = new ArrayList<String>(); // name of the repository
     static ArrayList<String> repo_list = new ArrayList<String>(); // git dir
-    static boolean output, help;
+    static boolean output, help, all, lcs;
     static String input_path = null;
+    static String file_all;
+    static String file_lcs;
 
     public static void main(String[] args) throws IOException, ParseException, GitAPIException {
         //cli options
@@ -36,7 +38,13 @@ public class App {
             {
                 print_help();
                 System.exit(0);
-            }   
+            }
+            if (lcs) {
+                
+            }
+            if(all){
+
+            }
         }
 
         // file path
@@ -56,15 +64,8 @@ public class App {
         
         // Cloning, get commit sha 
         GitFunctions.clone_repo_jgit(repo_url, repo_list);
-
         GitFunctions.all_commit(repo_list, repo_name);
-
         Gumtree.runGumtreeForAll(repo_name, repo_list);
-
-        // for (String name : repo_name)
-        // {
-        //     Vectorize.extract_vector_csv(name);
-        // }
     }
     
     public static void extract(String file_name) throws FileNotFoundException, IOException
@@ -92,6 +93,8 @@ public class App {
         System.out.println("------------------");
         System.out.println("-h, -help : listing all the commands with the description of functionality of commands");
         System.out.println("-o, -output : makes one txt file that contains all the changes in cloned repositories");
+        System.out.println("-a, -all : extracts all the repositories changes");
+        System.out.println("-l, -lcs : gets vector for lcs algorithm");
     }
 
     private static Options createOptions(){
@@ -99,6 +102,9 @@ public class App {
 
         options.addOption(Option.builder("o").longOpt("output").desc("makes the output file containing all the changes of all cloned repository").build());
         options.addOption(Option.builder("h").longOpt("help").desc("Help").build());
+        options.addOption(Option.builder("a").longOpt("all").desc("All extract").build());
+        options.addOption(Option.builder("l").longOpt("lcs").desc("lcs").build());
+
 
         return options;
     }
@@ -113,6 +119,14 @@ public class App {
                     output = true;
                 if(cmd.hasOption("h"))
                     help = true;
+                if (cmd.hasOption("a")) {
+                    all = true;
+                    file_all = cmd.getOptionValue("all");
+                }
+                if (cmd.hasOption("l")) {
+                    lcs = true;
+                    file_lcs = cmd.getOptionValue("lcs");
+                }
 
             } catch (Exception e){
                 System.out.println(e.getMessage());

@@ -270,6 +270,7 @@ public class Gumtree {
                     newTreeIter.reset(reader, head);
                     // finally get the list of changed files
                     try (Git git = new Git(repository)) {
+                        String url = repository.getConfig().getString("remote", "origin", "url");
                         List<DiffEntry> diffs = git.diff()
                                 .setNewTree(newTreeIter)
                                 .setOldTree(oldTreeIter)
@@ -279,7 +280,7 @@ public class Gumtree {
                             String str_old = entry.getOldPath();
                             if (str_new.endsWith(".java") && str_old.endsWith(".java")) { // only save file with
                                                                                           // extension of '.java'
-                                line = newCommit + "," + oldCommit + "," + entry.getNewPath() +"," + entry.getOldPath();
+                                line = newCommit + "," + oldCommit + "," + entry.getNewPath() +"," + entry.getOldPath() + "," + url;
                                 writer.write(line + "\n");
                             }
 

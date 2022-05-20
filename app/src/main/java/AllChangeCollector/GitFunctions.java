@@ -207,9 +207,6 @@ public class GitFunctions {
                 }
                 i++;
             }
-            // reader.close();
-            // writer.close();
-            System.out.println();
         }
     }
 
@@ -238,5 +235,4 @@ public class GitFunctions {
         writer.close();
         reader.close();
     }
-    
 }
