@@ -82,7 +82,8 @@ public class App {
             GitFunctions.clone_repo_jgit(repo_url, repo_list);
             GitFunctions.all_commit(repo_list, repo_name);
             Gumtree.runGumtreeForAll(repo_name, repo_list);
-        } else if (lec) {
+        }
+        if (lec) {
             try {
                 extract_lec(filename_lec);
             } catch (Exception e) {
@@ -173,7 +174,7 @@ public class App {
                     help = true;
                 if (cmd.hasOption("a")) {
                     all = true;
-                    file_all = cmd.getOptionValue("all");
+                    file_all = cmd.getOptionValue("a");
                 }
                 if (cmd.hasOption("l")) {
                     lec = true;
