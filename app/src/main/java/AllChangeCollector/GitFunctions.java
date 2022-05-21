@@ -11,6 +11,8 @@ import java.util.Collection;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -58,34 +60,55 @@ public class GitFunctions {
     }
 
     // Cloning Git repo using JGit
-    public static void clone_repo_jgit(ArrayList<String> repo_url, ArrayList<String> repo_list) throws IOException, GitAPIException{
+    public static void clone_repo_jgit(ArrayList<String> repo_url, ArrayList<String> repo_list)
+            throws IOException, GitAPIException {
 
-        for(String curr : repo_url)
-        {
+        for (String curr : repo_url) {
             // make directory
             int start = curr.lastIndexOf("/");
             int end = curr.lastIndexOf(".");
             String name = curr.substring(start, end);
-            
+
             File curr_directory = new File(System.getProperty("user.dir") + "/data" + name);
 
-            if (!curr_directory.exists())
-            {
+            if (!curr_directory.exists()) {
                 curr_directory.mkdir();
-            }
 
-            // cloning repository
-            System.out.println("Cloning from " + curr);
-            try(Git result = Git.cloneRepository()
-            .setURI(curr)
-            .setDirectory(curr_directory)
-            .setProgressMonitor(new TextProgressMonitor()) // SimpleProgressMonitor -> TextProgressMonitor
-            .call()){
-                System.out.println("Having repository: " + result.getRepository().getDirectory());
-                String output = result.getRepository().getDirectory().toString();
-                repo_list.add(output);
+                // cloning repository
+                System.out.println("Cloning from " + curr);
+                try (Git result = Git.cloneRepository()
+                        .setURI(curr)
+                        .setDirectory(curr_directory)
+                        .setProgressMonitor(new TextProgressMonitor()) // SimpleProgressMonitor -> TextProgressMonitor
+                        .call()) {
+                    System.out.println("Having repository: " + result.getRepository().getDirectory());
+                    String output = result.getRepository().getDirectory().toString();
+                    repo_list.add(output);
+                }
             }
         }
+    }
+    
+    public static String clone_designated_lcs(String url_lcs, String lcs_name) throws InvalidRemoteException, TransportException, GitAPIException
+    {
+        File curr_directory = new File(System.getProperty("user.dir") + "/lec/" + lcs_name);
+
+        if (!curr_directory.exists()) {
+            curr_directory.mkdir();
+
+            // cloning repository
+            System.out.println("Cloning from " + url_lcs);
+            try (Git result = Git.cloneRepository()
+                    .setURI(url_lcs)
+                    .setDirectory(curr_directory)
+                    .setProgressMonitor(new TextProgressMonitor()) // SimpleProgressMonitor -> TextProgressMonitor
+                    .call()) {
+                System.out.println("LCE repository: " + result.getRepository().getDirectory());
+                String output = result.getRepository().getDirectory().toString();
+                return output;
+            }
+        }
+        return "error";
     }
 
     public static void crawl_commit_id(ArrayList<String> repo_name)
@@ -174,7 +197,7 @@ public class GitFunctions {
 
     public static void all_commit(ArrayList<String> repo_list, ArrayList<String> repo_name)
             throws IOException, GitAPIException {
-        System.out.println("===== Starting Task : Commit ID Collecting(all commit) ======");
+        System.out.println("====== Starting Task : Commit ID Collecting(all commit) ======");
         int i = 0; // to keep the connection between repo_list and repo_name
         for (String name : repo_list) {
             try (Repository repo = new FileRepository(name)) {
@@ -197,7 +220,7 @@ public class GitFunctions {
                         } else {
                             Gumtree.get_changed_file(repo_list.get(i), repo_name.get(i), commit_sha_list.get(count - 1),
                                     beforeCommit); // (repo_git_directory, repo_name, current commit, old commit)
-                            Gumtree.get_log(repo_list.get(i), repo_name.get(i), 
+                            Gumtree.get_log(repo_list.get(i), repo_name.get(i),
                                     commit_sha_list.get(count - 1), beforeCommit);
                             commit_sha_list.add(beforeCommit);
                             count++;
@@ -209,8 +232,6 @@ public class GitFunctions {
             }
         }
     }
-
-
 
     public static void printResult(Process process) throws IOException
     {

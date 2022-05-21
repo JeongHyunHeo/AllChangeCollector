@@ -108,6 +108,99 @@ public class Vectorize {
         writer.close();
     }
     
+    public static void extract_vector_lec(String repo_name) throws FileNotFoundException, IOException {
+
+        // reading change file extracted by gumtree
+        System.out.println("======>Vectorizing");
+        String dir = System.getProperty("user.dir") + "/lec/" + repo_name + "/gumtree_lec_log.txt";
+        File file = new File(dir);
+
+        // create diretory to save vector files
+        File directory_vector = new File(System.getProperty("user.dir") + "/vector");
+        File vector_file = null;
+
+        if (!directory_vector.exists()) {
+            directory_vector.mkdir();
+        }
+
+        String vector_file_name = directory_vector.toString();
+        vector_file = new File(vector_file_name, repo_name + "_gumtree_vector.csv");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(vector_file, true));
+        String write_line = "";
+
+        // reading file
+        boolean no_change = false;
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line = null;
+
+            // read each line
+            boolean add = false;
+            int oper = 0;
+            // boolean hash = false;
+
+            while ((line = reader.readLine()) != null) {
+                StringTokenizer st = new StringTokenizer(line);
+                // examine tokens and write for matching string
+                while (st.hasMoreTokens()) {
+                    String st_l = st.nextToken();
+
+                    if (st_l.equals("[]")) {
+                        no_change = true;
+                    }
+                    if (st_l.matches("insert-node|delete-node|update-node|insert-tree|delete-tree|move-tree")) {
+                        // writing
+                        if (astType.size() > 0 && oper != -1) { // FIX: remove ',' on each line
+                            for (int i = 0; i < astType.size(); i++) {
+                                int val = 170 * oper + astType.get(i); // vector
+                                write_line += val + ",";
+                            }
+                        }
+                        astType.clear();
+                        oper = decide_node(st_l);
+                    }
+
+                    if (st_l.equals("---")) {
+                        add = true;
+                    }
+                    if (st_l.equals("===")) {
+                        add = false;
+                    }
+                    /*
+                     * deleted, reason: hashcode wasn't needed for the vectorizing
+                     * if (hash) {
+                     * if (map.containsKey(st_l)) {
+                     * String code = map.get(st_l).toString();
+                     * write_line += code + ", ";
+                     * } else {
+                     * int hash_num = st_l.hashCode();
+                     * map.put(st_l, hash_num);
+                     * write_line += hash_num + ", ";
+                     * }
+                     * 
+                     * hash = false;
+                     * }
+                     */
+
+                    if (add == true) {
+                        if ((!Character.isAlphabetic(st_l.charAt(st_l.length() - 1))) && add) {
+                            st_l = st_l.substring(0, st_l.length() - 1);
+                        }
+
+                        for (int i = 0; i < expanded_node.length; i++) {
+                            if (st_l.equals(expanded_node[i])) {
+                                astType.add(i + 1);
+                            }
+                        }
+                    }
+                }
+            }
+            writer.write(write_line + '\n');
+        }
+
+        writer.close();
+    }
+
+
     public static void extract_vector_csv(String repo_name) throws FileNotFoundException, IOException {
         System.out.println("=====> Parsing");
         System.out.println("===========> " + repo_name);

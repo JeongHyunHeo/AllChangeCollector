@@ -1,1 +1,1 @@
-https://github.com/apache/aries-rsa.git aries-rsa
+CarServiceWithRequiresNew.java 56899eaaa94f29f576733784e2a51345a9733d09 aries-jpa https://github.com/apache/aries-jpa.git
